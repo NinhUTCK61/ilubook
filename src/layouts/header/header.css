@@ -1,0 +1,15 @@
+.box {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+.input-text {
+  width: 35%;
+  border-radius: 20px;
+}
+
+.ip-text {
+  width: 100%;
+}

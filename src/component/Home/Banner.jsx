@@ -12,7 +12,10 @@ export default function Banner() {
           item
           xs={12}
           md={6}
-          sx={{ display: { height: "205px", marginTop: "5%" } }}
+          sx={{
+            display: { height: "205px", marginTop: "5%" },
+            position: "relative",
+          }}
         >
           <div
             className="component-banner-left"
@@ -78,12 +81,31 @@ export default function Banner() {
               </Button>
             </div>
           </div>
+          {/* SALE */}
+          <div
+            style={{
+              position: "absolute",
+              right: "30px",
+              top: "50px",
+              fontSize: "14px",
+              fontWeight: 500,
+              color: "#fff",
+              borderRadius: "2px",
+              backgroundColor: "#f51167",
+              padding: "4px 10px",
+            }}
+          >
+            SALE
+          </div>
         </Grid>
         <Grid
           item
           xs={12}
           md={6}
-          sx={{ display: { height: "205px", marginTop: "5%" } }}
+          sx={{
+            display: { height: "205px", marginTop: "5%" },
+            position: "relative",
+          }}
         >
           <div
             className="component-banner-right"
@@ -148,6 +170,22 @@ export default function Banner() {
                 Shop Now
               </Button>
             </div>
+          </div>
+          {/* NEW */}
+          <div
+            style={{
+              position: "absolute",
+              right: "30px",
+              top: "50px",
+              fontSize: "14px",
+              fontWeight: 500,
+              color: "#fff",
+              borderRadius: "2px",
+              backgroundColor: "#50e550",
+              padding: "4px 10px",
+            }}
+          >
+            NEW
           </div>
         </Grid>
       </Grid>

@@ -1,12 +1,24 @@
-import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import App from "../App";
+import Login from "../component/Auth/Login";
+import Register from "../component/Auth/Register";
+import DetailProduct from "../pages/DetailProduct";
 import Home from "../pages/Home";
 
 const router = [
   {
     path: "/",
     component: <App />,
-    child: [{ key: "home-page", path: "/", component: <Home /> }],
+    child: [
+      {
+        key: "product-detail",
+        path: "/product-detail/:id",
+        component: <DetailProduct />,
+      },
+      { key: "home-page", path: "/", component: <Home /> },
+      { key: "login-page", path: "/login", component: <Login /> },
+      { key: "register-page", path: "/register", component: <Register /> },
+    ],
   },
 ];
 

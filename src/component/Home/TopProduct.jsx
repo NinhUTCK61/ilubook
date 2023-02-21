@@ -6,6 +6,8 @@ import { styled } from "@mui/system";
 import { Typography } from "@mui/material";
 import "./home.css";
 import { Link } from "react-router-dom";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 
 const Item = styled("div")(({ theme }) => ({
   background: "aqua",
@@ -47,6 +49,24 @@ export default function TopProduct() {
           name: "Stainless steal earring hooks",
           price: "40.59",
         },
+        {
+          id: "6",
+          img: "https://seamaf.com/storage/products/614/QvOq4G5hkxvHv9.webp",
+          name: "Paper flags",
+          price: "40.59",
+        },
+        {
+          id: "7",
+          img: "https://seamaf.com/storage/products/613/GcRe2ZirwM8158.webp",
+          name: "ring basket brown (small)",
+          price: "40.59",
+        },
+        {
+          id: "8",
+          img: "https://seamaf.com/storage/products/611/1cfDRxjPPuABsC.webp",
+          name: "ring basket brown (small)",
+          price: "40.59",
+        },
       ];
       setProducts(dataProducts);
     };
@@ -77,7 +97,7 @@ export default function TopProduct() {
             md={3}
             sx={{ display: { marginTop: "4%" } }}
           >
-            <div>
+            <div style={{ position: "relative" }}>
               <Link to={`/product-detail/${product.id}`}>
                 <img
                   className="product-latest"
@@ -99,6 +119,88 @@ export default function TopProduct() {
                 >
                   $ {product.price}
                 </p>
+              </div>
+
+              {/* new */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: "16px",
+                  top: "14px",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  color: "#fff",
+                  background: "#50e550",
+                  textTransform: "uppercase",
+                  padding: "4px 14px",
+                  borderRadius: "15px",
+                  textAlign: "center",
+                }}
+              >
+                new
+              </div>
+
+              {/* icon */}
+              <div
+                style={{
+                  position: "absolute",
+                  right: "16px",
+                  bottom: "60px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "4px",
+                  alignItems: "flex-end",
+                }}
+              >
+                <div
+                  style={{
+                    padding: "6px 4px",
+                    backgroundColor: "#f0f0f0",
+                    cursor: "pointer",
+                    textAlign: "center",
+                  }}
+                >
+                  <ShoppingBagOutlinedIcon
+                    sx={{ fontSize: "20px", color: "#0000008a" }}
+                  />
+                </div>
+                {/* <div
+                  style={{
+                    padding: "6px 10px",
+                    backgroundColor: "#f0f0f0",
+                    cursor: "pointer",
+                    textAlign: "center",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    minWidth: "150px",
+                  }}
+                >
+                  <ShoppingBagOutlinedIcon
+                    sx={{ fontSize: "20px", color: "#0000008a" }}
+                  />
+                  <span
+                    style={{
+                      marginTop: "2px",
+                      fontSize: "12px",
+                      fontWeight: "bold",
+                      transition: "all 0.4s ease 0.3s",
+                    }}
+                  >
+                    ADD TO CARD
+                  </span>
+                </div> */}
+                <div
+                  style={{
+                    padding: "6px 4px",
+                    backgroundColor: "#f0f0f0",
+                    cursor: "pointer",
+                    textAlign: "center",
+                  }}
+                >
+                  <FavoriteBorderIcon
+                    sx={{ fontSize: "20px", color: "#0000008a" }}
+                  />
+                </div>
               </div>
             </div>
           </Grid>

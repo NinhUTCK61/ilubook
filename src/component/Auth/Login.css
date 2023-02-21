@@ -1,0 +1,10 @@
+.img-card-login {
+  background-image: url('../../../public/assets/img/img-card-login.jpg');
+  background-size: cover;
+  background-position: top center;
+}
+
+.login {
+  margin-top: 5%;
+  margin-bottom: 5%;
+}

@@ -5,13 +5,20 @@ import { Box } from "@mui/system";
 import { Typography } from "@mui/material";
 import { Container } from "@mui/material";
 import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {
+  AiOutlineInstagram,
+  AiOutlineTwitter,
+  AiFillYoutube,
+  AiFillLinkedin,
+} from "react-icons/ai";
+import { BsPinterest } from "react-icons/bs";
+import { FaFacebookF } from "react-icons/fa";
 import "./footer.css";
 
 const Footer = styled("div")(({ theme }) => ({
   backgroundColor: "#282828",
   color: "#8f8f8f",
   marginTop: "2%",
-  marginBottom: "2%",
 }));
 
 const FooterTitle = styled("div")(({ theme }) => ({
@@ -25,7 +32,6 @@ const FooterTitle = styled("div")(({ theme }) => ({
 const TextContact = styled("div")(({ theme }) => ({
   color: "#f51167",
   marginRight: "15px",
-
   marginLeft: "10%",
 }));
 
@@ -88,6 +94,54 @@ const BlogReadmore = styled("div")(({ theme }) => ({
   lineHeight: 1.5,
 }));
 
+const EnterYourMail = styled("div")`
+  width: 90%;
+  margin: 14px 0;
+  background-color: #ffffff;
+  padding: 8px 0;
+  padding-left: 10px;
+  padding-right: 5px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  span {
+    color: #f51167;
+    font-weight: 700;
+    font-size: 12px;
+  }
+`;
+
+const InputMail = styled("input")`
+  background-color: #ffffff;
+  border: none;
+  outline: none;
+  font-size: 12px;
+  font-weight: 400;
+`;
+
+const ListIcon = styled("div")`
+  padding-top: 5px;
+  display: flex;
+  gap: 5px;
+  cursor: pointer;
+`;
+
+const IconItem = styled("div")`
+  display: flex;
+  align-items: center;
+  svg {
+    color: #d7d7d7;
+    font-size: 30px;
+    margin-right: 16px;
+  }
+  span {
+    text-transform: uppercase;
+    color: #9f9fa0;
+    font-size: 12px;
+    font-weight: 600;
+  }
+`;
+
 export default function FooterMainLayout() {
   return (
     <Footer>
@@ -135,6 +189,10 @@ export default function FooterMainLayout() {
                     width="90%"
                   />
                 </AboutImg>
+                <EnterYourMail>
+                  <InputMail placeholder="Enter e-mail" />
+                  <span>SUBCRIBE</span>
+                </EnterYourMail>
               </Blog>
               <Blog>
                 <FooterTitle sx={{ marginLeft: "10%" }}>
@@ -384,6 +442,51 @@ export default function FooterMainLayout() {
             </Stack>
           </TitleLeft>
         </Stack>
+      </Container>
+      <div
+        style={{
+          borderTop: "2px solid #3b3535",
+        }}
+      ></div>
+      <Container>
+        <ListIcon>
+          <IconItem>
+            <AiOutlineInstagram />
+            <span>Instagram</span>
+          </IconItem>
+          <IconItem>
+            <BsPinterest />
+            <span>Pinterest</span>
+          </IconItem>
+          <IconItem>
+            <FaFacebookF />
+            <span>Facebook</span>
+          </IconItem>
+          <IconItem>
+            <AiOutlineTwitter />
+            <span>Twitter</span>
+          </IconItem>
+          <IconItem>
+            <AiFillYoutube />
+            <span>Youtube</span>
+          </IconItem>
+          <IconItem>
+            <AiFillLinkedin />
+            <span>Linkedin</span>
+          </IconItem>
+        </ListIcon>
+        <p
+          style={{
+            color: "#fff",
+            textAlign: "center",
+            fontSize: "14px",
+            paddingTop: "46px",
+            paddingBottom: "16px",
+            margin: 0,
+          }}
+        >
+          Copyright ©2023 All rights reserved | Developed By Eloquent Geeks
+        </p>
       </Container>
     </Footer>
   );

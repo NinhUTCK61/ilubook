@@ -28,11 +28,29 @@ const InputSearch = styled("input")`
   width: 100%;
 `;
 
-const Menu = styled("div")``;
+const Menu = styled("div")`
+  background-color: #fff;
+  position: absolute;
+  top: 96%;
 
-const MenuItem = styled("div")``;
+  border: 1px solid #000;
+  z-index: 1;
+`;
+
+const MenuItem = styled("div")(({ theme }) => ({
+  color: "#000",
+  fontSize: "14px",
+  fontWeight: 400,
+  padding: "4px 6px",
+  cursor: "pointer",
+  "&:hover": {
+    color: "#fff",
+    backgroundColor: "#1976d2",
+  },
+}));
 
 export default function Header() {
+  const [isOpenMenu, setIsOpenMenu] = React.useState(false);
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
@@ -82,47 +100,45 @@ export default function Header() {
                   sx={{
                     display: "flex",
                     alignItems: "center",
+                    position: "relative",
                   }}
+                  onClick={() => setIsOpenMenu(!isOpenMenu)}
                 >
-                  <Typography
-                    color="#000"
-                    sx={{ fontSize: "14px", position: "relative" }}
-                  >
-                    British Pound
-                    {/* <Menu>
-                      <MenuItem>U.S Dollar</MenuItem>
-                      <MenuItem>RTGS Dollar</MenuItem>
-                      <MenuItem>SA Rand</MenuItem>
-                      <MenuItem>British Pound</MenuItem>
-                    </Menu> */}
+                  <Typography color="#000" sx={{ fontSize: "14px" }}>
+                    U.S Dollar
                   </Typography>
                   <IconButton size="small">
                     <ArrowDropDownIcon sx={{ fontSize: 40 }} />
                   </IconButton>
+                  {isOpenMenu && (
+                    <Menu>
+                      <MenuItem>U.S Dollar</MenuItem>
+                      <MenuItem>RTGS Dollar</MenuItem>
+                      <MenuItem>SA Rand</MenuItem>
+                      <MenuItem>British Pound</MenuItem>
+                    </Menu>
+                  )}
                 </Box>
                 <IconButton size="small">
-                  <Badge
-                    badgeContent={4}
-                    color="warning"
-                    sx={{ display: "flex", alignItems: "flex-end" }}
-                  >
-                    <FavoriteBorderIcon sx={{ fontSize: 22 }} />
+                  <div style={{ display: "flex", alignItems: "flex-end" }}>
+                    <FavoriteBorderIcon sx={{ fontSize: 24 }} />
                     <Typography color="#000" sx={{ fontSize: "14px" }}>
                       Wishlist
                     </Typography>
-                  </Badge>
+                  </div>
                 </IconButton>
                 <IconButton size="small">
-                  <Badge
-                    badgeContent={1}
-                    color="error"
-                    sx={{ display: "flex", alignItems: "flex-end" }}
-                  >
-                    <ShoppingBagOutlinedIcon sx={{ fontSize: 22 }} />
-                    <Typography color="#000" sx={{ fontSize: "14px" }}>
+                  <div style={{ display: "flex", alignItems: "flex-end" }}>
+                    <Badge badgeContent={1} color="error">
+                      <ShoppingBagOutlinedIcon sx={{ fontSize: 24 }} />
+                    </Badge>
+                    <Typography
+                      color="#000"
+                      sx={{ fontSize: "14px", marginLeft: "8px" }}
+                    >
                       Shopping Cart
                     </Typography>
-                  </Badge>
+                  </div>
                 </IconButton>
               </Box>
             </Grid>

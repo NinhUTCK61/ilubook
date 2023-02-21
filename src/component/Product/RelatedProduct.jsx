@@ -9,9 +9,9 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 // import axios from "axios";
 // import { Link } from "react-router-dom";
-import "./home.css";
+// import "./home.css";
 
-export default function LatestProduct() {
+export default function RelatedProduct() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
@@ -84,15 +84,15 @@ export default function LatestProduct() {
     <Container>
       <Typography
         sx={{
-          display: {
-            marginTop: "3%",
-            textAlign: "center",
-            fontSize: "20px",
-            fontWeight: "600",
-          },
+          fontSize: "24px",
+          color: "#111111",
+          fontWeight: "600",
+          textAlign: "center",
+          marginTop: "4%",
+          marginBottom: "20px",
         }}
       >
-        LATELEST PRODUCT
+        RELATED PRODUCTS
       </Typography>
       <Slider {...settings}>
         {products.map(product => (
@@ -139,25 +139,6 @@ export default function LatestProduct() {
                 >
                   $ {product.price}
                 </p>
-              </div>
-
-              {/* new */}
-              <div
-                style={{
-                  position: "absolute",
-                  left: "16px",
-                  top: "14px",
-                  fontSize: "10px",
-                  fontWeight: 700,
-                  color: "#fff",
-                  background: "#50e550",
-                  textTransform: "uppercase",
-                  padding: "4px 14px",
-                  borderRadius: "15px",
-                  textAlign: "center",
-                }}
-              >
-                new
               </div>
 
               {/* icon */}

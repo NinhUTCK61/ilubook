@@ -1,57 +1,46 @@
 import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import { Container } from "@mui/material";
-import { Grid } from "@mui/material";
-import { Typography } from "@mui/material";
+import { Container, Grid, Typography, keyframes, styled } from "@mui/material";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
-// import axios from "axios";
-// import { Link } from "react-router-dom";
-// import "./home.css";
+import { useNavigate } from "react-router-dom";
+import { getListProduct } from "../../api/product";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
+const AddToCardText = styled("div")(({ theme }) => ({
+  padding: "6px 4px",
+  backgroundColor: "#f0f0f0",
+  cursor: "pointer",
+  textAlign: "center",
+  display: "flex",
+  alignItems: "flex-start",
+  span: {
+    display: "none",
+  },
+  "&:hover": {
+    span: {
+      animation: `${fadeIn} 0.15s ease-in`,
+      display: "block",
+    },
+  },
+}));
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    margin-top: 8px;
+  }
+
+  to {
+    opacity: 1;
+    margin-top:2px;
+  }
+`;
 
 export default function RelatedProduct() {
-  const [products, setProducts] = useState([]);
-
-  useEffect(() => {
-    const getProducts = () => {
-      const dataProducts = [
-        {
-          id: "1",
-          img: "https://seamaf.com/storage/products/614/QvOq4G5hkxvHv9.webp",
-          name: "Paper flags",
-          price: "40.59",
-        },
-        {
-          id: "2",
-          img: "https://seamaf.com/storage/products/613/GcRe2ZirwM8158.webp",
-          name: "ring basket brown (small)",
-          price: "40.59",
-        },
-        {
-          id: "3",
-          img: "https://seamaf.com/storage/products/611/1cfDRxjPPuABsC.webp",
-          name: "ring basket brown (small)",
-          price: "40.59",
-        },
-        {
-          id: "4",
-          img: "https://seamaf.com/storage/products/617/PmHvUsij2eMb6w.webp",
-          name: "kids paper cups",
-          price: "40.59",
-        },
-        {
-          id: "5",
-          img: "https://seamaf.com/frontend/img/no-image.png",
-          name: "Stainless steal earring hooks",
-          price: "40.59",
-        },
-      ];
-      setProducts(dataProducts);
-    };
-    getProducts();
-  }, []);
+  const navigate = useNavigate();
+  const [listProduct, setListProduct] = useState([]);
 
   const settings = {
     dots: true,
@@ -80,6 +69,22 @@ export default function RelatedProduct() {
       },
     ],
   };
+
+  const handleChooseProduct = id => {
+    navigate("/product-detail/" + id);
+  };
+
+  useEffect(() => {
+    const fetchListProduct = async () => {
+      try {
+        const data = await getListProduct();
+        setListProduct(data.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchListProduct();
+  }, []);
   return (
     <Container>
       <Typography
@@ -95,8 +100,8 @@ export default function RelatedProduct() {
         RELATED PRODUCTS
       </Typography>
       <Slider {...settings}>
-        {products.map(product => (
-          <div key={product.id}>
+        {listProduct.map(product => (
+          <div key={product._id}>
             <Grid
               item
               xs={6}
@@ -110,15 +115,15 @@ export default function RelatedProduct() {
                 },
               }}
             >
-              {/* <Link to={`/product-detail/${product.id}`}> */}
               <img
                 className="product-latest"
-                src={product.img}
-                alt={product.img}
+                src={product.image}
+                alt={product.image}
                 width="98%"
                 height="98%"
+                onClick={() => handleChooseProduct(product._id)}
               />
-              {/* </Link> */}
+
               <div
                 style={{
                   display: "flex",
@@ -127,7 +132,7 @@ export default function RelatedProduct() {
                   color: "#111",
                 }}
               >
-                <p>{product.name}</p>
+                <p>{product.title}</p>
                 <p
                   style={{
                     display: "block",
@@ -153,43 +158,20 @@ export default function RelatedProduct() {
                   alignItems: "flex-end",
                 }}
               >
-                <div
-                  style={{
-                    padding: "6px 4px",
-                    backgroundColor: "#f0f0f0",
-                    cursor: "pointer",
-                    textAlign: "center",
-                  }}
-                >
-                  <ShoppingBagOutlinedIcon
-                    sx={{ fontSize: "20px", color: "#0000008a" }}
-                  />
-                </div>
-                {/* <div
-                  style={{
-                    padding: "6px 10px",
-                    backgroundColor: "#f0f0f0",
-                    cursor: "pointer",
-                    textAlign: "center",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    minWidth: "150px",
-                  }}
-                >
+                <AddToCardText>
                   <ShoppingBagOutlinedIcon
                     sx={{ fontSize: "20px", color: "#0000008a" }}
                   />
                   <span
                     style={{
-                      marginTop: "2px",
+                      marginLeft: "40px",
                       fontSize: "12px",
                       fontWeight: "bold",
-                      transition: "all 0.4s ease 0.3s",
                     }}
                   >
                     ADD TO CARD
                   </span>
-                </div> */}
+                </AddToCardText>
                 <div
                   style={{
                     padding: "6px 4px",

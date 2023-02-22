@@ -1,4 +1,3 @@
-import { dividerClasses } from "@mui/material";
 import "./home.css";
 import Slider from "./Slider.js";
 import Feature from "./Feature";

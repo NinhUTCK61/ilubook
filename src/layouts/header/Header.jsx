@@ -10,6 +10,7 @@ import Grid from "@mui/material/Grid";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
+import { Link } from "react-router-dom";
 
 const SearchWrap = styled("div")`
   height: 44px;
@@ -65,22 +66,30 @@ export default function Header() {
         <Toolbar sx={{ backgroundColor: "#fff" }}>
           <Grid container sx={{ display: "flex", alignItems: "center" }}>
             <Grid item xs={2} sx={{ padding: "0 15px" }}>
-              <Typography
-                variant="h4"
-                noWrap
-                component="div"
-                sx={{
-                  display: {
-                    xs: "none",
-                    sm: "block",
-                    color: "#111",
-                    fontWeight: 600,
-                    fontSize: "24px",
-                  },
+              <Link
+                to="/"
+                style={{
+                  textDecoration: "none",
                 }}
               >
-                ilubooks
-              </Typography>
+                <Typography
+                  variant="h4"
+                  noWrap
+                  component="div"
+                  sx={{
+                    display: {
+                      xs: "none",
+                      sm: "block",
+                      color: "#111",
+                      fontWeight: 600,
+                      fontSize: "24px",
+                    },
+                    fontFamily: "Josefin Sans",
+                  }}
+                >
+                  ilubooks
+                </Typography>
+              </Link>
             </Grid>
             <Grid item xs={6} sx={{ padding: "0 15px" }}>
               <SearchWrap>
@@ -92,7 +101,6 @@ export default function Header() {
                 sx={{
                   display: { xs: "none", md: "flex" },
                   justifyContent: "flex-end",
-                  justifyContent: "space-between",
                   width: "100%",
                 }}
               >

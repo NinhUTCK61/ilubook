@@ -1,13 +1,11 @@
-import React from "react";
-import axios from "axios";
-import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import { Button, Container, Grid, styled, Typography } from "@mui/material";
 import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
 import MuiAccordion from "@mui/material/Accordion";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import ImageZoom from "./ImageZoom";
+import { Link } from "react-router-dom";
 
 const ListColor = styled("div")`
   display: flex;
@@ -29,7 +27,7 @@ const ColorItem = styled("p")`
 const Accordion = styled(props => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
 ))(({ theme }) => ({
-  "&:first-child": {
+  "&:first-of-type": {
     borderTop: "2px solid #e1e1e1",
   },
   borderBottom: "2px solid #e1e1e1",
@@ -78,65 +76,55 @@ const SelectImage = styled("div")`
 const ImageSelectItem = styled("img")`
   width: 116px;
   height: 116px;
-  objectfit: cover;
+
   border: 2px solid #f51167;
 `;
 
-export default function ProductDetail() {
-  const params = useParams();
-
-  const [proDetail, setProDetail] = useState({});
-  const [expanded, setExpanded] = React.useState("");
+export default function ProductDetail({ infoProduct }) {
+  const [quantity, setQuantity] = useState(0);
+  const [expanded, setExpanded] = useState("");
+  const [zoomImage, setZoomImage] = useState(null);
 
   const handleChange = panel => (event, newExpanded) => {
     setExpanded(newExpanded ? panel : false);
   };
 
-  React.useEffect(() => {
-    setProDetail({
-      categori_id: 1,
-      img: "https://seamaf.com/storage/products/499/eQqZiANJINCKug.jpg",
-      name: "ZEBRA CHARMS (EACH)",
-      price: "0.10",
-      description:
-        "Charms and pendants allow you to make unique jewelry designs and really express yourself! Whether you're filling up a charm bracelet, making a pair of simple earrings, dangling a single charm or pendant from a necklace, adding visual interest to your scrap booking, or working up some other fun magic, you'll discover a treasure of quality charms",
-    });
-  }, [params]);
+  useEffect(() => {
+    setQuantity(infoProduct?.quantity);
+    setZoomImage(infoProduct?.image);
+  }, [infoProduct]);
 
   return (
     <Container sx={{ paddingTop: "20px", paddingBottom: "65px" }}>
-      <p
+      <Link
+        to="/shop"
         style={{
-          paddingBottom: "50px",
-          fontSize: "12px",
-          color: "#414141",
-          cursor: "pointer",
+          textDecoration: "none",
         }}
       >
-        {"<< Back to Categories"}
-      </p>
+        <p
+          style={{
+            paddingBottom: "50px",
+            fontSize: "12px",
+            color: "#414141",
+            cursor: "pointer",
+          }}
+        >
+          {"<< Back to Categories"}
+        </p>
+      </Link>
+
       <Grid container spacing={5}>
         <Grid item xs={12} sm={12} md={6}>
-          <ImageZoom src={proDetail.img} />
+          <ImageZoom src={zoomImage} />
           <SelectImage>
-            <ImageSelectItem
-              src={"https://seamaf.com/storage/products/77/KnKUlG3u295gpz.jpg"}
-            />
-            <ImageSelectItem
-              src={"https://seamaf.com/storage/products/77/KnKUlG3u295gpz.jpg"}
-            />
-            <ImageSelectItem
-              src={"https://seamaf.com/storage/products/77/KnKUlG3u295gpz.jpg"}
-            />
-            <ImageSelectItem
-              src={"https://seamaf.com/storage/products/77/KnKUlG3u295gpz.jpg"}
-            />
-            <ImageSelectItem
-              src={"https://seamaf.com/storage/products/77/KnKUlG3u295gpz.jpg"}
-            />
-            <ImageSelectItem
-              src={"https://seamaf.com/storage/products/77/KnKUlG3u295gpz.jpg"}
-            />
+            {infoProduct?.listDiffImg?.map((e, index) => (
+              <ImageSelectItem
+                key={index}
+                src={e}
+                onClick={() => setZoomImage(e)}
+              />
+            ))}
           </SelectImage>
         </Grid>
 
@@ -149,7 +137,7 @@ export default function ProductDetail() {
               marginBottom: "18px",
             }}
           >
-            {proDetail.name}
+            {infoProduct?.title}
           </div>
           <div
             style={{
@@ -159,18 +147,20 @@ export default function ProductDetail() {
               marginBottom: "20px",
             }}
           >
-            $ {proDetail.price}
+            $ {infoProduct?.price}
           </div>
           <p
             style={{
               fontSize: "12px",
-              color: "#000",
               fontWeight: 700,
               color: "#414141",
               marginBottom: "10px",
             }}
           >
-            Availability: <span style={{ color: "#f51167" }}>In Stock</span>
+            Availability:{" "}
+            <span style={{ color: "#f51167" }}>
+              {infoProduct?.isAvailable && "In Stock"}
+            </span>
           </p>
           <div
             style={{
@@ -226,9 +216,21 @@ export default function ProductDetail() {
                 cursor: "pointer",
               }}
             >
-              <span>-</span>
-              <span>5</span>
-              <span>+</span>
+              <span
+                onClick={() => {
+                  setQuantity(prev => prev - 1);
+                }}
+              >
+                -
+              </span>
+              <span>{quantity}</span>
+              <span
+                onClick={() => {
+                  setQuantity(prev => prev + 1);
+                }}
+              >
+                +
+              </span>
             </div>
           </div>
           <Button
@@ -271,8 +273,7 @@ export default function ProductDetail() {
                     lineHeight: "1.5",
                   }}
                 >
-                  Check out our paracode selection for the very best in unique
-                  or custom, handmade pieces from our shops.
+                  {infoProduct?.description}
                 </Typography>
               </AccordionDetails>
             </Accordion>
@@ -320,7 +321,7 @@ export default function ProductDetail() {
                       color: "#f51167",
                     }}
                   >
-                    3 - 4 DAYS
+                    {infoProduct?.shipping} DAYS
                   </span>
                 </div>
               </AccordionDetails>

@@ -51,7 +51,7 @@ const AboutImg = styled("div")(({ theme }) => ({
 }));
 
 const StyleUserLink = styled("div")(({ theme }) => ({
-  "&:first-child": {
+  "&:first-of-type": {
     marginTop: 0,
   },
   marginTop: "10%",
@@ -65,7 +65,7 @@ const StyleUserLink = styled("div")(({ theme }) => ({
 
 const BlogImg = styled("div")(({ theme }) => ({
   marginTop: "8%",
-  "&:first-child": {
+  "&:first-of-type": {
     marginTop: 0,
   },
 }));
@@ -133,12 +133,20 @@ const IconItem = styled("div")`
     color: #d7d7d7;
     font-size: 30px;
     margin-right: 16px;
+    transition: all ease 0.3s;
   }
   span {
     text-transform: uppercase;
     color: #9f9fa0;
     font-size: 12px;
     font-weight: 600;
+    transition: all ease 0.3s;
+  }
+  &:hover {
+    span,
+    svg {
+      color: #fff;
+    }
   }
 `;
 

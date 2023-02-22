@@ -1,13 +1,13 @@
-import logo from "./logo.svg";
 import "./App.css";
 import * as React from "react";
 import MainLayout from "./layouts/MainLayout";
 import { Outlet } from "react-router-dom";
+import "aos/dist/aos.css";
 
 function App() {
   return (
     <MainLayout>
-      <Outlet />
+      <Outlet data-aos="fade-up" />
     </MainLayout>
   );
 }

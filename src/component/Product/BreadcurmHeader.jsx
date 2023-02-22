@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Typography, Box } from "@mui/material";
 
-const BreadcurmHeader = () => {
+const BreadcurmHeader = ({ title }) => {
   return (
     <Box
       sx={{
@@ -20,7 +20,7 @@ const BreadcurmHeader = () => {
             lineHeight: "1.2",
           }}
         >
-          BEADING WIRES AND THREADS
+          {title}
         </Typography>
         <div style={{ fontSize: "14px", fontWeight: 600, color: "#414141" }}>
           Home / Shop

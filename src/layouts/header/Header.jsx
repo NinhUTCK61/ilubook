@@ -10,7 +10,7 @@ import Grid from "@mui/material/Grid";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
-import { Link } from "react-router-dom";
+import { Link } from "@mui/material";
 
 const SearchWrap = styled("div")`
   height: 44px;
@@ -66,16 +66,9 @@ export default function Header() {
         <Toolbar sx={{ backgroundColor: "#fff" }}>
           <Grid container sx={{ display: "flex", alignItems: "center" }}>
             <Grid item xs={2} sx={{ padding: "0 15px" }}>
-              <Link
-                to="/"
-                style={{
-                  textDecoration: "none",
-                }}
-              >
-                <Typography
-                  variant="h4"
-                  noWrap
-                  component="div"
+              <Typography>
+                <Link
+                  to={"/"}
                   sx={{
                     display: {
                       xs: "none",
@@ -85,11 +78,13 @@ export default function Header() {
                       fontSize: "24px",
                     },
                     fontFamily: "Josefin Sans",
+                    textDecoration: "none",
+                    cursor: "pointer",
                   }}
                 >
                   ilubooks
-                </Typography>
-              </Link>
+                </Link>
+              </Typography>
             </Grid>
             <Grid item xs={6} sx={{ padding: "0 15px" }}>
               <SearchWrap>
@@ -140,12 +135,14 @@ export default function Header() {
                     <Badge badgeContent={1} color="error">
                       <ShoppingBagOutlinedIcon sx={{ fontSize: 24 }} />
                     </Badge>
-                    <Typography
-                      color="#000"
-                      sx={{ fontSize: "14px", marginLeft: "8px" }}
-                    >
-                      Shopping Cart
-                    </Typography>
+                    <Link to="/cart" sx={{ textDecoration: "none" }}>
+                      <Typography
+                        color="#000"
+                        sx={{ fontSize: "14px", marginLeft: "8px" }}
+                      >
+                        Shopping Cart
+                      </Typography>
+                    </Link>
                   </div>
                 </IconButton>
               </Box>

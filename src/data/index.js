@@ -1,6 +1,6 @@
-import App from "../App";
 import Login from "../pages/Auth/Login";
 import Register from "../pages/Auth/Register";
+import Cart from "../pages/Cart";
 import DetailProduct from "../pages/DetailProduct";
 import Home from "../pages/Home";
 
@@ -93,6 +93,9 @@ export const listMenu = [
     isStyle: false,
     subMenu: [],
   },
+];
+
+export const listNotAuthMenu = [
   {
     key: "sign-in",
     name: "Signin",
@@ -109,22 +112,35 @@ export const listMenu = [
   },
 ];
 
+export const listAuthMenu = [
+  {
+    key: "settings",
+    name: "Settings",
+    link: "/settings",
+  },
+  {
+    key: "my-order",
+    name: "My Orders",
+    link: "/my-order",
+  },
+  {
+    key: "log-out",
+    name: "Log out",
+    link: "/",
+  },
+];
+
 export const listRouter = [
   {
-    path: "/",
-    component: <App />,
-    child: [
-      {
-        key: "product-detail",
-        path: "/product-detail/:id",
-        component: <DetailProduct />,
-      },
-      { key: "login-page", path: "/login", component: <Login /> },
-      { key: "register-page", path: "/register", component: <Register /> },
-      { key: "home-page", path: "/", component: <Home /> },
-      { key: "other-page", path: "/*", component: <Home /> },
-    ],
+    key: "product-detail",
+    path: "/product-detail/:id",
+    component: <DetailProduct />,
   },
+  { key: "login-page", path: "/login", component: <Login /> },
+  { key: "register-page", path: "/register", component: <Register /> },
+  { key: "home-page", path: "/", component: <Home /> },
+  { key: "card", path: "/cart", component: <Cart /> },
+  { key: "other-page", path: "/*", component: <Home /> },
 ];
 
 export const listHomeSlide = [

@@ -1,14 +1,23 @@
+import React, { useState } from "react";
 import styled from "@emotion/styled";
-import { Container, Link, Stack } from "@mui/material";
-import { Checkbox } from "@mui/material";
-import { FormControlLabel } from "@mui/material";
-import { Button } from "@mui/material";
-import React from "react";
+import {
+  Container,
+  Link,
+  Stack,
+  Checkbox,
+  FormControlLabel,
+  Button,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import "./Login.css";
 import { MdEmail } from "react-icons/md";
 import { GoKey } from "react-icons/go";
+import { auth, provider } from "../../helper/firebase";
+import { signInWithPopup } from "firebase/auth";
+import { signIn, signInWithGoogle } from "../../api/auth";
+import Cookies from "js-cookie";
+import { useDispatch } from "react-redux";
+import { loginFailure, loginStart, loginSuccess } from "../../redux/userSlice";
 
 const ImgCardLogin = styled("div")(({ theme }) => ({
   backgroundImage: "url(assets/img/img-card-login.jpg)",
@@ -73,30 +82,49 @@ const Remember = styled("div")(({ theme }) => ({
 }));
 
 export default function Login() {
-  // const [email, setEmail] = useState("");
-
-  // const [password, setPassword] = useState("");
-
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const handleLogin = () => {
-    axios
-      .post("http://localhost:8000/api/login", {
-        // email: email,
-        // password: password,
-      })
-      .then(res => {
-        let user = res["data"]["user"];
-        let token = res["data"]["token"];
-        if (token !== false) {
-          localStorage.setItem("token", token);
-          localStorage.setItem("user", JSON.stringify(user));
-          navigate("/", { state: { data: token } });
-        } else {
-          alert("dang nhap that bai");
-        }
-      });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleReset = () => {
+    setEmail("");
+    setPassword("");
   };
+
+  const handleLogin = async () => {
+    dispatch(loginStart());
+    try {
+      const data = await signIn({ email, password });
+      Cookies.set("access_token", data.data.token);
+      dispatch(loginSuccess(data.data));
+      handleReset();
+      navigate("/");
+    } catch (error) {
+      dispatch(loginFailure());
+      console.log(error);
+    }
+  };
+
+  const handleSignInWithGoogle = async () => {
+    dispatch(loginStart());
+    try {
+      const infoEmail = await signInWithPopup(auth, provider);
+      const data = await signInWithGoogle({
+        name: infoEmail.user.displayName,
+        email: infoEmail.user.email,
+      });
+      Cookies.set("access_token", data.data.token);
+      dispatch(loginSuccess(data.data));
+      handleReset();
+      navigate("/");
+    } catch (error) {
+      dispatch(loginFailure());
+      console.log(console.error());
+    }
+  };
+
   return (
     <div className="login">
       <Container>
@@ -128,19 +156,28 @@ export default function Login() {
             >
               <InputtFiled>
                 <MdEmail />
-                <InputText placeholder="Email Address" />
+                <InputText
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
               </InputtFiled>
 
               <InputtFiled>
                 <GoKey />
-                <InputText placeholder="Password" />
+                <InputText
+                  type={"password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                />
               </InputtFiled>
 
               <Remember>
                 <FormControlLabel
                   control={
                     <Checkbox
-                      Checked
+                      checked
                       sx={{
                         "&.Mui-checked": {
                           color: "#f51167",
@@ -178,6 +215,7 @@ export default function Login() {
               >
                 <Link
                   style={{
+                    cursor: "pointer",
                     textDecoration: "none",
                     color: "#007bff",
                     fontWeight: "bold",
@@ -219,6 +257,7 @@ export default function Login() {
                     textTransform: "none",
                     fontWeight: "bold",
                   }}
+                  onClick={handleSignInWithGoogle}
                 >
                   Google
                 </Button>
@@ -242,8 +281,12 @@ export default function Login() {
                   Check out as a guest ?{" "}
                   <span
                     style={{
+                      cursor: "pointer",
                       color: "#007bff",
                       fontWeight: "bold",
+                    }}
+                    onClick={() => {
+                      navigate("/");
                     }}
                   >
                     Click Here
@@ -257,8 +300,12 @@ export default function Login() {
                   Don't have account ?{" "}
                   <span
                     style={{
+                      cursor: "pointer",
                       color: "#007bff",
                       fontWeight: "bold",
+                    }}
+                    onClick={() => {
+                      navigate("/register");
                     }}
                   >
                     Register Here

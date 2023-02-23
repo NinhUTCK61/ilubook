@@ -4,18 +4,24 @@ import { Box } from "@mui/system";
 import { Link } from "react-router-dom";
 import "./header.css";
 import { styled } from "@mui/material/styles";
-import { listMenu } from "../../data";
+import { listAuthMenu, listMenu, listNotAuthMenu } from "../../data";
+import { useDispatch, useSelector } from "react-redux";
+import { FaRegUser } from "react-icons/fa";
+import { logout } from "../../redux/userSlice";
 
 const ListMenu = styled("ul")`
   display: flex;
+  gap: 20px;
   justify-content: flex-start;
   list-style-type: none;
   padding: 0;
+  align-items: center;
 `;
 
 const MenuItem = styled("li")`
   position: relative;
   padding: 0 17px;
+
   &:first-of-type {
     padding-left: 0px;
     padding-right: 17px;
@@ -27,6 +33,10 @@ const MenuItem = styled("li")`
   }
 
   &:hover a {
+    color: #f51167;
+  }
+
+  &:hover svg {
     color: #f51167;
   }
 
@@ -42,6 +52,10 @@ const MenuItem = styled("li")`
     height: 30px;
     position: absolute;
     z-index: 1;
+  }
+
+  & > svg {
+    margin-right: 10px;
   }
 `;
 
@@ -92,16 +106,34 @@ const isStyle = {
   padding: "2px 6px",
 };
 
-export default function HeaderBot() {
-  const renderSubMenu = listMenu => {
-    return (
-      <SubMenu>
-        {listMenu?.map(e => (
-          <SubMenuItem key={e.key}>{e.name}</SubMenuItem>
-        ))}
-      </SubMenu>
-    );
+function RenderSubMenu({ listMenu }) {
+  const dispatch = useDispatch();
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout());
+    } catch (error) {
+      console.log(error);
+    }
   };
+  return (
+    <SubMenu>
+      {listMenu?.map(e => {
+        if (e.key === "log-out") {
+          return (
+            <SubMenuItem key={e.key} onClick={handleLogout}>
+              {e.name}
+            </SubMenuItem>
+          );
+        } else {
+          return <SubMenuItem key={e.key}>{e.name}</SubMenuItem>;
+        }
+      })}
+    </SubMenu>
+  );
+}
+
+export default function HeaderBot() {
+  const { currentUser } = useSelector(state => state.user);
   return (
     <AppBar
       position="static"
@@ -116,9 +148,22 @@ export default function HeaderBot() {
               <MenuItem key={i.key}>
                 <Link to={i.link}>{i.name}</Link>
                 {i.isStyle && <div style={isStyle}>SALE</div>}
-                {i.subMenu.length > 0 && renderSubMenu(i.subMenu)}
+                {i.subMenu.length > 0 && <RenderSubMenu listMenu={i.subMenu} />}
               </MenuItem>
             ))}
+            {!currentUser ? (
+              listNotAuthMenu?.map(i => (
+                <MenuItem key={i.key}>
+                  <Link to={i.link}>{i.name}</Link>
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem>
+                <FaRegUser />
+                <Link to={"/"}>{currentUser.name}</Link>
+                <RenderSubMenu listMenu={listAuthMenu} />
+              </MenuItem>
+            )}
           </ListMenu>
         </Box>
       </Container>

@@ -1,10 +1,9 @@
-import axios from "axios";
-const baseUrl = "http://localhost:8800/api/v1";
+import { API } from ".";
 
 // Get List Product
 const getListProduct = async () => {
   try {
-    const res = await axios.get(baseUrl + "/product");
+    const res = await API.get("/product");
     return res;
   } catch (error) {
     return error;
@@ -14,7 +13,7 @@ const getListProduct = async () => {
 // Get Info Detail Product
 const getInfoProduct = async id => {
   try {
-    const res = await axios.get(baseUrl + "/product/" + id);
+    const res = await API.get("/product/" + id);
     return res;
   } catch (error) {
     return error;

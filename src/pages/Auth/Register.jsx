@@ -1,14 +1,19 @@
-import styled from "@emotion/styled";
-import { Container, Stack } from "@mui/material";
-import { Button } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import "./Login.css";
+import styled from "@emotion/styled";
+import { Container, Stack, Button } from "@mui/material";
 import { MdEmail } from "react-icons/md";
 import { GoKey } from "react-icons/go";
 import { FaUserAlt } from "react-icons/fa";
 import ReCAPTCHA from "react-google-recaptcha";
+import { signUp } from "../../api/auth";
+import { auth, provider } from "../../helper/firebase";
+import { signInWithPopup } from "firebase/auth";
+import { signInWithGoogle } from "../../api/auth";
+import Cookies from "js-cookie";
+import "./Login.css";
+import { useDispatch } from "react-redux";
+import { loginStart, loginSuccess, loginFailure } from "../../redux/userSlice";
 
 const ImgCardLogin = styled("div")(({ theme }) => ({
   backgroundImage: "url(assets/img/img-card-login.jpg)",
@@ -68,30 +73,54 @@ const InputText = styled("input")(({ theme }) => ({
 }));
 
 export default function Register() {
-  // const [email, setEmail] = useState("");
-
-  // const [password, setPassword] = useState("");
-
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  const handleLogin = () => {
-    axios
-      .post("http://localhost:8000/api/login", {
-        // email: email,
-        // password: password,
-      })
-      .then(res => {
-        let user = res["data"]["user"];
-        let token = res["data"]["token"];
-        if (token !== false) {
-          localStorage.setItem("token", token);
-          localStorage.setItem("user", JSON.stringify(user));
-          navigate("/", { state: { data: token } });
-        } else {
-          alert("dang nhap that bai");
-        }
-      });
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confimPassword, setConfimPassword] = useState("");
+  const [isRobot, setIsRobot] = useState(true);
+
+  const handleReset = () => {
+    setName("");
+    setEmail("");
+    setPassword("");
+    setConfimPassword("");
   };
+
+  const handleRegister = async () => {
+    try {
+      const data = await signUp({
+        name,
+        email,
+        password,
+      });
+      handleReset();
+      console.log(data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSignInWithGoogle = async () => {
+    dispatch(loginStart());
+    try {
+      const infoEmail = await signInWithPopup(auth, provider);
+      const data = await signInWithGoogle({
+        name: infoEmail.user.displayName,
+        email: infoEmail.user.email,
+      });
+      Cookies.set("access_token", data.data.token);
+      dispatch(loginSuccess(data.data));
+      handleReset();
+      navigate("/");
+    } catch (error) {
+      dispatch(loginFailure());
+      console.log(console.error());
+    }
+  };
+
   return (
     <div className="login">
       <Container>
@@ -123,15 +152,28 @@ export default function Register() {
             >
               <InputtFiled>
                 <FaUserAlt />
-                <InputText placeholder="Name" />
+                <InputText
+                  placeholder="Name"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                />
               </InputtFiled>
               <InputtFiled>
                 <MdEmail />
-                <InputText placeholder="Email Address" />
+                <InputText
+                  placeholder="Email Address"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                />
               </InputtFiled>
               <InputtFiled>
                 <GoKey />
-                <InputText placeholder="Password" />
+                <InputText
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                />
               </InputtFiled>
               <InputtFiled
                 style={{
@@ -139,11 +181,16 @@ export default function Register() {
                 }}
               >
                 <GoKey />
-                <InputText placeholder="Confirm Password" />
+                <InputText
+                  type="password"
+                  placeholder="Confirm Password"
+                  value={confimPassword}
+                  onChange={e => setConfimPassword(e.target.value)}
+                />
               </InputtFiled>
               <ReCAPTCHA
-                sitekey="6LeKfKIkAAAAACGmWsm6YctTQnVd7-5yCowmtj70"
-                onChange={() => console.log("hello")}
+                sitekey="6LchWqgkAAAAADjS7iMnLoqtNHVlR_96Q4-Vu4gt"
+                onChange={() => setIsRobot(false)}
               />
               ,
               <Button
@@ -158,7 +205,7 @@ export default function Register() {
                   fontWeight: "bold",
                 }}
                 type="button"
-                onClick={handleLogin}
+                onClick={handleRegister}
               >
                 Sign - up
               </Button>
@@ -193,6 +240,7 @@ export default function Register() {
                     textTransform: "none",
                     fontWeight: "bold",
                   }}
+                  onClick={handleSignInWithGoogle}
                 >
                   Google
                 </Button>
@@ -214,9 +262,11 @@ export default function Register() {
                   Already have an account?{" "}
                   <span
                     style={{
+                      cursor: "pointer",
                       color: "#007bff",
                       fontWeight: "bold",
                     }}
+                    onClick={() => navigate("/login")}
                   >
                     Login Here
                   </span>

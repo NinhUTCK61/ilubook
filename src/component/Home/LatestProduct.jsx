@@ -102,7 +102,7 @@ export default function LatestProduct() {
         LATELEST PRODUCT
       </Typography>
       <Slider {...settings}>
-        {listProduct.map(product => (
+        {listProduct?.map(product => (
           <div key={product._id}>
             <Grid
               item

@@ -6,7 +6,6 @@ import {
   getInfoProduct,
   updateProduct,
 } from "../controllers/product.js";
-// import { verifyToken } from "../verifyToken.js";
 
 const router = express.Router();
 

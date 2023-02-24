@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
@@ -24,12 +25,13 @@ const connect = () => {
 app.use(cookieParser());
 app.use(express.json());
 
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
-  res.header("Access-Control-Allow-Headers", "content-type");
-  res.header("Access-Control-Allow-Credentials", true);
-  next();
-});
+app.use(
+  cors({
+    origin: "http://localhost:3000", // replace with your frontend app URL
+    credentials: true, // enable cookies
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  })
+);
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);

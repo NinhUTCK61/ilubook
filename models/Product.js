@@ -13,9 +13,7 @@ const ProductSchema = new mongoose.Schema(
     isNew: {
       type: Boolean,
     },
-    isAvailable: {
-      type: Boolean,
-    },
+
     quantity: {
       type: Number,
     },

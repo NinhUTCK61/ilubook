@@ -25,7 +25,9 @@ export const signup = async (req, res, next) => {
 
 export const signin = async (req, res, next) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email }).populate(
+      "cart.product"
+    );
     if (!user) {
       res.json({ status: 201, message: "Email không tồn tại" });
     } else {
@@ -52,7 +54,9 @@ export const signin = async (req, res, next) => {
 
 export const googleAuth = async (req, res, next) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const user = await User.findOne({ email: req.body.email }).populate(
+      "cart.product"
+    );
     if (user) {
       const token = jwt.sign({ id: user._id }, process.env.JWT);
       res

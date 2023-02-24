@@ -18,6 +18,7 @@ import { signIn, signInWithGoogle } from "../../api/auth";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
 import { loginFailure, loginStart, loginSuccess } from "../../redux/userSlice";
+import { addToCartSuccess } from "../../redux/productSlice";
 
 const ImgCardLogin = styled("div")(({ theme }) => ({
   backgroundImage: "url(assets/img/img-card-login.jpg)",
@@ -99,8 +100,9 @@ export default function Login() {
       const data = await signIn({ email, password });
       Cookies.set("access_token", data.data.token);
       dispatch(loginSuccess(data.data));
+      dispatch(addToCartSuccess(data.data.cart));
       handleReset();
-      navigate("/");
+      navigate(-1);
     } catch (error) {
       dispatch(loginFailure());
       console.log(error);
@@ -117,8 +119,9 @@ export default function Login() {
       });
       Cookies.set("access_token", data.data.token);
       dispatch(loginSuccess(data.data));
+      dispatch(addToCartSuccess(data.data.cart));
       handleReset();
-      navigate("/");
+      navigate(-1);
     } catch (error) {
       dispatch(loginFailure());
       console.log(console.error());

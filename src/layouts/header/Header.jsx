@@ -10,7 +10,8 @@ import Grid from "@mui/material/Grid";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
-import { Link } from "@mui/material";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const SearchWrap = styled("div")`
   height: 44px;
@@ -52,6 +53,8 @@ const MenuItem = styled("div")(({ theme }) => ({
 
 export default function Header() {
   const [isOpenMenu, setIsOpenMenu] = React.useState(false);
+  const { listProduct } = useSelector(state => state.product);
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar
@@ -69,14 +72,12 @@ export default function Header() {
               <Typography>
                 <Link
                   to={"/"}
-                  sx={{
-                    display: {
-                      xs: "none",
-                      sm: "block",
-                      color: "#111",
-                      fontWeight: 600,
-                      fontSize: "24px",
-                    },
+                  style={{
+                    xs: "none",
+                    sm: "block",
+                    color: "#111",
+                    fontWeight: 600,
+                    fontSize: "24px",
                     fontFamily: "Josefin Sans",
                     textDecoration: "none",
                     cursor: "pointer",
@@ -130,20 +131,28 @@ export default function Header() {
                     </Typography>
                   </div>
                 </IconButton>
+
                 <IconButton size="small">
-                  <div style={{ display: "flex", alignItems: "flex-end" }}>
-                    <Badge badgeContent={1} color="error">
-                      <ShoppingBagOutlinedIcon sx={{ fontSize: 24 }} />
-                    </Badge>
-                    <Link to="/cart" sx={{ textDecoration: "none" }}>
+                  <Link
+                    to="/cart"
+                    style={{
+                      textDecoration: "none",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "flex-end" }}>
+                      <Badge badgeContent={listProduct?.length} color="error">
+                        <ShoppingBagOutlinedIcon
+                          sx={{ fontSize: 24, color: "#000" }}
+                        />
+                      </Badge>
                       <Typography
                         color="#000"
                         sx={{ fontSize: "14px", marginLeft: "8px" }}
                       >
                         Shopping Cart
                       </Typography>
-                    </Link>
-                  </div>
+                    </div>
+                  </Link>
                 </IconButton>
               </Box>
             </Grid>

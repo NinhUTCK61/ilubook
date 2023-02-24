@@ -8,6 +8,7 @@ import { listAuthMenu, listMenu, listNotAuthMenu } from "../../data";
 import { useDispatch, useSelector } from "react-redux";
 import { FaRegUser } from "react-icons/fa";
 import { logout } from "../../redux/userSlice";
+import { clearCart } from "../../redux/productSlice";
 
 const ListMenu = styled("ul")`
   display: flex;
@@ -111,6 +112,7 @@ function RenderSubMenu({ listMenu }) {
   const handleLogout = async () => {
     try {
       await dispatch(logout());
+      await dispatch(clearCart());
     } catch (error) {
       console.log(error);
     }

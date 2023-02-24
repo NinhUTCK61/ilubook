@@ -5,7 +5,14 @@ import MuiAccordion from "@mui/material/Accordion";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import ImageZoom from "./ImageZoom";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart } from "../../api/user";
+import {
+  addToCartSuccess,
+  fauilreAddToCart,
+  startAddToCart,
+} from "../../redux/productSlice";
 
 const ListColor = styled("div")`
   display: flex;
@@ -81,7 +88,11 @@ const ImageSelectItem = styled("img")`
 `;
 
 export default function ProductDetail({ infoProduct }) {
-  const [quantity, setQuantity] = useState(0);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { currentUser } = useSelector(state => state.user);
+
+  const [quantity, setQuantity] = useState(1);
   const [expanded, setExpanded] = useState("");
   const [zoomImage, setZoomImage] = useState(null);
 
@@ -89,8 +100,27 @@ export default function ProductDetail({ infoProduct }) {
     setExpanded(newExpanded ? panel : false);
   };
 
+  const addProductTocart = async () => {
+    if (!currentUser) {
+      navigate("/login");
+    } else {
+      dispatch(startAddToCart());
+      try {
+        const data = await addToCart({
+          productId: infoProduct._id,
+          quantity,
+          userId: currentUser._id,
+        });
+
+        dispatch(addToCartSuccess(data.data.user.cart));
+      } catch (error) {
+        dispatch(fauilreAddToCart());
+        console.log(error);
+      }
+    }
+  };
+
   useEffect(() => {
-    setQuantity(infoProduct?.quantity);
     setZoomImage(infoProduct?.image);
   }, [infoProduct]);
 
@@ -159,7 +189,7 @@ export default function ProductDetail({ infoProduct }) {
           >
             Availability:{" "}
             <span style={{ color: "#f51167" }}>
-              {infoProduct?.isAvailable && "In Stock"}
+              {infoProduct.quantity > 0 ? `In Stock` : "No available"}
             </span>
           </p>
           <div
@@ -186,67 +216,75 @@ export default function ProductDetail({ infoProduct }) {
               <ColorItem>Pink</ColorItem>
             </ListColor>
           </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: "40px",
-            }}
-          >
-            <p
-              style={{
-                marginRight: "38px",
-                fontSize: "14px",
-                color: "#414141",
-                fontWeight: 700,
-              }}
-            >
-              QUANTITY
-            </p>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "54px",
-                height: "36px",
-                border: "1px solid #ddd",
-                padding: "0 15px",
-                borderRadius: "40px",
-                cursor: "pointer",
-              }}
-            >
-              <span
-                onClick={() => {
-                  setQuantity(prev => prev - 1);
+          {infoProduct.quantity > 0 && (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "40px",
                 }}
               >
-                -
-              </span>
-              <span>{quantity}</span>
-              <span
-                onClick={() => {
-                  setQuantity(prev => prev + 1);
+                <p
+                  style={{
+                    marginRight: "38px",
+                    fontSize: "14px",
+                    color: "#414141",
+                    fontWeight: 700,
+                  }}
+                >
+                  QUANTITY
+                </p>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "54px",
+                    height: "36px",
+                    border: "1px solid #ddd",
+                    padding: "0 15px",
+                    borderRadius: "40px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <span
+                    onClick={() => {
+                      if (quantity > 1) {
+                        setQuantity(prev => prev - 1);
+                      }
+                    }}
+                  >
+                    -
+                  </span>
+                  <span>{quantity}</span>
+                  <span
+                    onClick={() => {
+                      setQuantity(prev => prev + 1);
+                    }}
+                  >
+                    +
+                  </span>
+                </div>
+              </div>
+              <Button
+                sx={{
+                  backgroundColor: "#f51167",
+                  color: "white",
+                  minWidth: "190px",
+                  borderRadius: "10px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  padding: "10px 0",
+                  "&:hover": { backgroundColor: "#f51167", color: "white" },
                 }}
+                onClick={addProductTocart}
               >
-                +
-              </span>
-            </div>
-          </div>
-          <Button
-            sx={{
-              backgroundColor: "#f51167",
-              color: "white",
-              minWidth: "190px",
-              borderRadius: "10px",
-              fontSize: "14px",
-              fontWeight: 600,
-              padding: "10px 0",
-              "&:hover": { backgroundColor: "#f51167", color: "white" },
-            }}
-          >
-            ADD TO CART
-          </Button>
+                ADD TO CART
+              </Button>
+            </>
+          )}
+
           <div style={{ marginTop: "50px" }}>
             <Accordion
               expanded={expanded === "panel1"}

@@ -163,3 +163,11 @@ export const listHomeSlide = [
     index: "2",
   },
 ];
+
+export const listOptionShipping = [
+  { key: "viettel-post", label: "Viettel Post", price: 10 },
+  { key: "vietnam-post", label: "Vietnam Post", price: 20 },
+  { key: "jt-express", label: "J&T Express", price: 30 },
+  { key: "grab-express", label: "Grab Express", price: 40 },
+  { key: "ninja-van", label: "Ninja Van", price: 50 },
+];

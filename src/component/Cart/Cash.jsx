@@ -14,12 +14,15 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
-import { getInfoUser } from "../../api/user";
-import { useDispatch } from "react-redux";
+import { deleteToCart, getInfoUser, updateToCart } from "../../api/user";
+import { useDispatch, useSelector } from "react-redux";
 import {
   loginStart,
   loginSuccess,
   loginFailure,
+  startAddToCart,
+  addToCartSuccess,
+  fauilreAddToCart,
 } from "../../redux/productSlice";
 import { listOptionShipping } from "../../data";
 
@@ -113,12 +116,12 @@ const SelectOptionShipping = styled("div")(({ theme }) => ({
 }));
 
 const ButtonCaculate = styled("div")(({ theme }) => ({
+  width: "max-content",
   marginTop: "20px",
   borderRadius: "5px",
   background: "#343a40",
   color: "#fff !important",
   padding: "10px 12px",
-  width: "min-content",
   cursor: "pointer",
 }));
 
@@ -143,34 +146,93 @@ const ShippingButton = styled("div")(({ theme }) => ({
 }));
 
 export default function Cash({ currentUser }) {
+  const dispatch = useDispatch();
+  const initCart = useSelector(state => state.product.listProduct);
+
   const [listProduct, setListProduct] = useState([]);
   const [totalPrice, setTotalPrice] = useState(null);
-  const [unitShipping, setUnitShipping] = useState("10");
+  const [unitShipping, setUnitShipping] = useState(10);
 
-  const handleQuantityChange = async (index, newQuantity) => {
+  const handleQuantityChange = (index, newQuantity) => {
     newQuantity = newQuantity > 0 ? newQuantity : 1;
     const newListProduct = [...listProduct];
     newListProduct[index].quantity = newQuantity;
     setListProduct(newListProduct);
   };
 
-  const HandleSumTotal = () => {
-    const newProduct = listProduct.map(e => ({
-      quantity: e.quantity,
-      price: Number(e.product.price),
-    }));
-    const totalPrice = newProduct
-      .reduce((a, b) => a + b.price * b.quantity, 0)
-      .toFixed(2);
-    setTotalPrice(totalPrice);
-    return <span>{`$ ${totalPrice}`}</span>;
+  const handleRemoveProduct = async (index, id) => {
+    const newListProduct = [...listProduct];
+    newListProduct.splice(index, 1);
+    setListProduct(newListProduct);
+    // dispatch(startAddToCart());
+    try {
+      const data = await deleteToCart({
+        idUser: currentUser._id,
+        idProduct: id,
+      });
+      // dispatch(addToCartSuccess(data.data.cart));
+    } catch (error) {
+      // dispatch(fauilreAddToCart());
+      console.log(error);
+    }
   };
+
+  const handleSaveYourCart = async () => {
+    const oldListProduct = initCart?.map(i => ({
+      quantity: i.quantity,
+      productId: i.product._id,
+    }));
+
+    const newListProduct = listProduct?.map(i => ({
+      quantity: i.quantity,
+      productId: i.product._id,
+    }));
+
+    for (let i = 0; i < newListProduct.length; i++) {
+      for (let j = 0; j < oldListProduct.length; j++) {
+        if (newListProduct[i].productId === oldListProduct[j].productId) {
+          newListProduct[i].quantity -= oldListProduct[j].quantity;
+          break;
+        }
+      }
+    }
+
+    dispatch(startAddToCart());
+    try {
+      const data = await updateToCart({
+        userId: currentUser._id,
+        products: newListProduct,
+      });
+      dispatch(addToCartSuccess(data.data.cart));
+    } catch (error) {
+      dispatch(fauilreAddToCart());
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    const handleSumTotal = () => {
+      const priceProduct = listProduct
+        ?.map(e => ({
+          quantity: e?.quantity,
+          price: Number(e?.product?.price),
+        }))
+        .reduce((a, b) => a + b.price * b.quantity, 0);
+
+      const totalPrice = (Number(priceProduct) + Number(unitShipping)).toFixed(
+        2
+      );
+
+      setTotalPrice(totalPrice);
+    };
+    handleSumTotal();
+  }, [listProduct, unitShipping]);
 
   useEffect(() => {
     const getListProduct = async () => {
       try {
         const data = await getInfoUser(currentUser?._id);
-        setListProduct(data.data.cart);
+        setListProduct(data.data?.cart);
       } catch (error) {
         console.log(error);
       }
@@ -247,15 +309,17 @@ export default function Cash({ currentUser }) {
                 </TableHead>
 
                 <TableBody>
-                  {listProduct.map((cartProduct, index) => (
+                  {listProduct?.map((cartProduct, index) => (
                     <TableRow key={cartProduct?._id}>
                       <TableCell sx={{ paddingLeft: 0, border: "none" }}>
-                        <Link to={`/product-detail/${cartProduct.product.id}`}>
+                        <Link
+                          to={`/product-detail/${cartProduct?.product?.id}`}
+                        >
                           <img
-                            src={`${cartProduct.product.image}`}
+                            src={`${cartProduct?.product?.image}`}
                             width="70px"
                             height="70px"
-                            alt={cartProduct._id}
+                            alt={cartProduct?._id}
                           />
                         </Link>
                       </TableCell>
@@ -267,14 +331,14 @@ export default function Cash({ currentUser }) {
                           border: "none",
                         }}
                       >
-                        <div>{cartProduct.product.title}</div>
+                        <div>{cartProduct?.product?.title}</div>
                         <div
                           style={{
                             marginTop: "2px",
                             fontWeight: 400,
                           }}
                         >
-                          ${cartProduct.product.price}
+                          ${cartProduct?.product?.price}
                         </div>
                       </TableCell>
                       <TableCell
@@ -347,11 +411,20 @@ export default function Cash({ currentUser }) {
                           >
                             $
                             {(
-                              Number(cartProduct.product.price) *
-                              cartProduct.quantity
+                              Number(cartProduct?.product?.price) *
+                              cartProduct?.quantity
                             ).toFixed(2)}
                           </span>
-                          <FaTimes color="red" size={"16px"} />
+                          <FaTimes
+                            color="red"
+                            size={"16px"}
+                            onClick={() =>
+                              handleRemoveProduct(
+                                index,
+                                cartProduct.product._id
+                              )
+                            }
+                          />
                         </div>
                       </TableCell>
                     </TableRow>
@@ -391,7 +464,7 @@ export default function Cash({ currentUser }) {
                   }}
                 >
                   <span>{"New Subtotal"}</span>
-                  <HandleSumTotal />
+                  <span>{totalPrice}</span>
                 </div>
               </Box>
             </TableContainer>
@@ -413,20 +486,25 @@ export default function Cash({ currentUser }) {
               <span>SHIPPING OPTIONS</span>
               <SelectOptionShipping>
                 <span>Select Zone</span>
+
                 <Select
                   labelId="demo-select-small"
                   id="demo-select-small"
                   size="small"
                   sx={{ flex: "1" }}
-                  value={unitShipping}
                   onChange={e => setUnitShipping(e.target.value)}
+                  value={unitShipping}
                 >
-                  {listOptionShipping.map(i => (
-                    <MenuItem value={i}>{i.label}</MenuItem>
+                  {listOptionShipping.map(option => (
+                    <MenuItem key={option.key} value={option.price}>
+                      {option.label}
+                    </MenuItem>
                   ))}
                 </Select>
               </SelectOptionShipping>
-              <ButtonCaculate>Calculate</ButtonCaculate>
+              <ButtonCaculate onClick={handleSaveYourCart}>
+                Save your cart
+              </ButtonCaculate>
             </div>
           </WrapOptionShipping>
           <WrapButton>

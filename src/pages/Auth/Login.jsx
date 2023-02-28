@@ -95,17 +95,19 @@ export default function Login() {
   };
 
   const handleLogin = async () => {
-    dispatch(loginStart());
-    try {
-      const data = await signIn({ email, password });
-      Cookies.set("access_token", data.data.token);
-      dispatch(loginSuccess(data.data));
-      dispatch(addToCartSuccess(data.data.cart));
-      handleReset();
-      navigate(-1);
-    } catch (error) {
-      dispatch(loginFailure());
-      console.log(error);
+    if (email && password) {
+      dispatch(loginStart());
+      try {
+        const data = await signIn({ email, password });
+        Cookies.set("access_token", data.data.token);
+        dispatch(loginSuccess(data.data));
+        dispatch(addToCartSuccess(data.data.cart));
+        handleReset();
+        navigate(-1);
+      } catch (error) {
+        dispatch(loginFailure());
+        console.log(error);
+      }
     }
   };
 

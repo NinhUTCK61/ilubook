@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import Cash from "../component/Cart/Cash.jsx";
-import Introduce from "../component/Cart/Introduce.jsx";
+import Cash from "../../component/Cart/Cash.jsx";
+import Introduce from "../../component/Cart/Introduce.jsx";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 

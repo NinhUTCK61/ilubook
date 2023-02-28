@@ -121,9 +121,9 @@ export default function LatestProduct() {
                 className="product-latest"
                 src={product.image}
                 alt={product.image}
-                width="98%"
-                height="98%"
-                onClick={() => handleChooseProduct(product._id)}
+                width="270px"
+                height="270px"
+                style={{ objectFit: "cover" }}
               />
               <div
                 style={{
@@ -131,7 +131,9 @@ export default function LatestProduct() {
                   position: "relative",
                   fontSize: "14px",
                   color: "#111",
+                  cursor: "pointer",
                 }}
+                onClick={() => handleChooseProduct(product._id)}
               >
                 <p>{product.title}</p>
                 <p

@@ -4,7 +4,12 @@ import { Box } from "@mui/system";
 import { Link } from "react-router-dom";
 import "./header.css";
 import { styled } from "@mui/material/styles";
-import { listAuthMenu, listMenu, listNotAuthMenu } from "../../data";
+import {
+  listAuthMenu,
+  listAuthMenuAdmin,
+  listMenu,
+  listNotAuthMenu,
+} from "../../data";
 import { useDispatch, useSelector } from "react-redux";
 import { FaRegUser } from "react-icons/fa";
 import { logout } from "../../redux/userSlice";
@@ -127,7 +132,15 @@ function RenderSubMenu({ listMenu }) {
             </SubMenuItem>
           );
         } else {
-          return <SubMenuItem key={e.key}>{e.name}</SubMenuItem>;
+          return (
+            <Link
+              to={e.link}
+              key={e.key}
+              style={{ textDecoration: "none", color: "#000" }}
+            >
+              <SubMenuItem>{e.name}</SubMenuItem>
+            </Link>
+          );
         }
       })}
     </SubMenu>
@@ -163,7 +176,13 @@ export default function HeaderBot() {
               <MenuItem>
                 <FaRegUser />
                 <Link to={"/"}>{currentUser.name}</Link>
-                <RenderSubMenu listMenu={listAuthMenu} />
+                <RenderSubMenu
+                  listMenu={
+                    currentUser.isAdmin
+                      ? listAuthMenuAdmin.concat(listAuthMenu)
+                      : listAuthMenu
+                  }
+                />
               </MenuItem>
             )}
           </ListMenu>

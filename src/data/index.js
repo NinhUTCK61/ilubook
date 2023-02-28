@@ -1,8 +1,10 @@
 import Login from "../pages/Auth/Login";
 import Register from "../pages/Auth/Register";
-import Cart from "../pages/Cart";
-import DetailProduct from "../pages/DetailProduct";
-import Home from "../pages/Home";
+import Cart from "../pages/User/Cart";
+import DetailProduct from "../pages/User/DetailProduct";
+import Home from "../pages/User/Home";
+import ListProduct from "../pages/Admin/Product/ListProduct";
+import ListCategory from "../pages/Admin/Category/ListCategory";
 
 export const listMenu = [
   {
@@ -130,6 +132,24 @@ export const listAuthMenu = [
   },
 ];
 
+export const listAuthMenuAdmin = [
+  {
+    key: "management-category",
+    name: "Management Category",
+    link: "/management-category",
+  },
+  {
+    key: "management-product",
+    name: "Management Product",
+    link: "/management-product",
+  },
+  {
+    key: "management-cart",
+    name: "Management Cart",
+    link: "/management-cart",
+  },
+];
+
 export const listRouter = [
   {
     key: "product-detail",
@@ -140,6 +160,16 @@ export const listRouter = [
   { key: "register-page", path: "/register", component: <Register /> },
   { key: "home-page", path: "/", component: <Home /> },
   { key: "card", path: "/cart", component: <Cart /> },
+  {
+    key: "management-product",
+    path: "/management-product",
+    component: <ListProduct />,
+  },
+  {
+    key: "management-category",
+    path: "/management-category",
+    component: <ListCategory />,
+  },
   { key: "other-page", path: "/*", component: <Home /> },
 ];
 

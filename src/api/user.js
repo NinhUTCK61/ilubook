@@ -1,9 +1,26 @@
 import { API } from ".";
 
-// Get List Product
 const addToCart = async payload => {
   try {
     const res = await API.put("/users/add-to-cart", payload);
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
+const updateToCart = async payload => {
+  try {
+    const res = await API.put("/users/update-to-cart", payload);
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
+const deleteToCart = async payload => {
+  try {
+    const res = await API.put("/users/delete-to-cart", payload);
     return res;
   } catch (error) {
     return error;
@@ -20,4 +37,4 @@ const getInfoUser = async id => {
   }
 };
 
-export { addToCart, getInfoUser };
+export { addToCart, getInfoUser, updateToCart, deleteToCart };

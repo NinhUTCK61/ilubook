@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getInfoProduct } from "../api/product";
-import BreadcurmHeader from "../component/Product/BreadcurmHeader";
-import ProductDetail from "../component/Product/ProductDetail";
-import RelatedProduct from "../component/Product/RelatedProduct";
+import { getInfoProduct } from "../../api/product";
+import BreadcurmHeader from "../../component/Product/BreadcurmHeader";
+import ProductDetail from "../../component/Product/ProductDetail";
+import RelatedProduct from "../../component/Product/RelatedProduct";
 
 const DetailProduct = () => {
   const { id } = useParams();

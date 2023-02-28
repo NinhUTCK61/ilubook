@@ -107,8 +107,12 @@ export default function ProductDetail({ infoProduct }) {
       dispatch(startAddToCart());
       try {
         const data = await addToCart({
-          productId: infoProduct._id,
-          quantity,
+          products: [
+            {
+              productId: infoProduct._id,
+              quantity,
+            },
+          ],
           userId: currentUser._id,
         });
 

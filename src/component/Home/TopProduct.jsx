@@ -83,8 +83,9 @@ export default function TopProduct() {
                   className="product-latest"
                   src={product.image}
                   alt=""
-                  width="98%"
-                  height="98%"
+                  width="270px"
+                  height="270px"
+                  style={{ objectFit: "cover" }}
                 />
               </Link>
 

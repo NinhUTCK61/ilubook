@@ -7,6 +7,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import productRoutes from "./routes/product.js";
+import categoryRoutes from "./routes/category.js";
 
 const app = express();
 dotenv.config();
@@ -36,6 +37,7 @@ app.use(
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/product", productRoutes);
+app.use("/api/v1/category", categoryRoutes);
 
 app.use((err, req, res, next) => {
   const status = err.status || 500;

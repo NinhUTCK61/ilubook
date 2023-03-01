@@ -17,8 +17,14 @@ import { signInWithPopup } from "firebase/auth";
 import { signIn, signInWithGoogle } from "../../api/auth";
 import Cookies from "js-cookie";
 import { useDispatch } from "react-redux";
-import { loginFailure, loginStart, loginSuccess } from "../../redux/userSlice";
+import { loginSuccess } from "../../redux/userSlice";
 import { addToCartSuccess } from "../../redux/productSlice";
+import {
+  endLoading,
+  showSnackbar,
+  startLoading,
+} from "../../redux/statusSlice";
+import { errorSystem } from "../../data";
 
 const ImgCardLogin = styled("div")(({ theme }) => ({
   backgroundImage: "url(assets/img/img-card-login.jpg)",
@@ -95,24 +101,40 @@ export default function Login() {
   };
 
   const handleLogin = async () => {
+    dispatch(startLoading());
     if (email && password) {
-      dispatch(loginStart());
       try {
         const data = await signIn({ email, password });
-        Cookies.set("access_token", data.data.token);
-        dispatch(loginSuccess(data.data));
-        dispatch(addToCartSuccess(data.data.cart));
-        handleReset();
-        navigate(-1);
+        if (data.data.status === 200) {
+          Cookies.set("access_token", data.data.token);
+          dispatch(loginSuccess(data.data));
+          dispatch(addToCartSuccess(data.data.cart));
+          dispatch(
+            showSnackbar({ severity: "success", message: data.data.message })
+          );
+          handleReset();
+          navigate(-1);
+        } else {
+          dispatch(
+            showSnackbar({ severity: "warning", message: data.data.message })
+          );
+        }
       } catch (error) {
-        dispatch(loginFailure());
-        console.log(error);
+        dispatch(showSnackbar(errorSystem));
       }
+    } else {
+      dispatch(
+        showSnackbar({
+          severity: "warning",
+          message: "Bạn cần điền các trường để đăng nhập",
+        })
+      );
     }
+    dispatch(endLoading());
   };
 
   const handleSignInWithGoogle = async () => {
-    dispatch(loginStart());
+    dispatch(startLoading());
     try {
       const infoEmail = await signInWithPopup(auth, provider);
       const data = await signInWithGoogle({
@@ -122,12 +144,15 @@ export default function Login() {
       Cookies.set("access_token", data.data.token);
       dispatch(loginSuccess(data.data));
       dispatch(addToCartSuccess(data.data.cart));
+      dispatch(
+        showSnackbar({ severity: "success", message: data.data.message })
+      );
       handleReset();
       navigate(-1);
     } catch (error) {
-      dispatch(loginFailure());
       console.log(console.error());
     }
+    dispatch(endLoading());
   };
 
   return (

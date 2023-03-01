@@ -14,17 +14,15 @@ import {
   MenuItem,
   Select,
 } from "@mui/material";
-import { deleteToCart, getInfoUser, updateToCart } from "../../api/user";
+import { getInfoUser, updateToCart } from "../../api/user";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  loginStart,
-  loginSuccess,
-  loginFailure,
-  startAddToCart,
-  addToCartSuccess,
-  fauilreAddToCart,
-} from "../../redux/productSlice";
+import { addToCartSuccess } from "../../redux/productSlice";
 import { listOptionShipping } from "../../data";
+import {
+  endLoading,
+  showSnackbar,
+  startLoading,
+} from "../../redux/statusSlice";
 
 const BodyCart = styled("div")(({ theme }) => ({
   width: "100%",
@@ -164,20 +162,10 @@ export default function Cash({ currentUser }) {
     const newListProduct = [...listProduct];
     newListProduct.splice(index, 1);
     setListProduct(newListProduct);
-    // dispatch(startAddToCart());
-    try {
-      const data = await deleteToCart({
-        idUser: currentUser._id,
-        idProduct: id,
-      });
-      // dispatch(addToCartSuccess(data.data.cart));
-    } catch (error) {
-      // dispatch(fauilreAddToCart());
-      console.log(error);
-    }
   };
 
   const handleSaveYourCart = async () => {
+    dispatch(startLoading());
     const oldListProduct = initCart?.map(i => ({
       quantity: i.quantity,
       productId: i.product._id,
@@ -189,7 +177,7 @@ export default function Cash({ currentUser }) {
     }));
 
     for (let i = 0; i < newListProduct.length; i++) {
-      for (let j = 0; j < oldListProduct.length; j++) {
+      for (let j = 0; j < oldListProduct?.length; j++) {
         if (newListProduct[i].productId === oldListProduct[j].productId) {
           newListProduct[i].quantity -= oldListProduct[j].quantity;
           break;
@@ -197,17 +185,27 @@ export default function Cash({ currentUser }) {
       }
     }
 
-    dispatch(startAddToCart());
     try {
       const data = await updateToCart({
         userId: currentUser._id,
         products: newListProduct,
       });
-      dispatch(addToCartSuccess(data.data.cart));
+      console.log(data.data);
+      if (data?.data.error) {
+        dispatch(
+          showSnackbar({ severity: "warning", message: data.data.error })
+        );
+      } else {
+        dispatch(
+          showSnackbar({ severity: "success", message: data.data.message })
+        );
+      }
+
+      dispatch(addToCartSuccess(data.data.user.cart));
     } catch (error) {
-      dispatch(fauilreAddToCart());
       console.log(error);
     }
+    dispatch(endLoading());
   };
 
   useEffect(() => {

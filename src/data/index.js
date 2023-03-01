@@ -5,6 +5,7 @@ import DetailProduct from "../pages/User/DetailProduct";
 import Home from "../pages/User/Home";
 import ListProduct from "../pages/Admin/Product/ListProduct";
 import ListCategory from "../pages/Admin/Category/ListCategory";
+import ManagementCart from "../pages/Admin/Cart/ManagementCart";
 
 export const listMenu = [
   {
@@ -160,6 +161,10 @@ export const listRouter = [
   { key: "register-page", path: "/register", component: <Register /> },
   { key: "home-page", path: "/", component: <Home /> },
   { key: "card", path: "/cart", component: <Cart /> },
+  { key: "other-page", path: "/*", component: <Home /> },
+];
+
+export const listRouterPrivate = [
   {
     key: "management-product",
     path: "/management-product",
@@ -170,7 +175,11 @@ export const listRouter = [
     path: "/management-category",
     component: <ListCategory />,
   },
-  { key: "other-page", path: "/*", component: <Home /> },
+  {
+    key: "management-cart",
+    path: "/management-cart",
+    component: <ManagementCart />,
+  },
 ];
 
 export const listHomeSlide = [
@@ -201,3 +210,8 @@ export const listOptionShipping = [
   { key: "grab-express", label: "Grab Express", price: 40 },
   { key: "ninja-van", label: "Ninja Van", price: 50 },
 ];
+
+export const errorSystem = {
+  severity: "error",
+  message: "Lỗi hệ thống",
+};

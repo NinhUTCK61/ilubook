@@ -7,6 +7,15 @@ import { Link } from "react-router-dom";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import { getListProduct } from "../../api/product";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  endLoading,
+  showSnackbar,
+  startLoading,
+} from "../../redux/statusSlice";
+import { errorSystem } from "../../data";
+import { addToCart } from "../../api/user";
+import { addToCartSuccess } from "../../redux/productSlice";
 
 const AddToCardText = styled("div")(({ theme }) => ({
   padding: "6px 4px",
@@ -39,19 +48,51 @@ const fadeIn = keyframes`
 `;
 
 export default function TopProduct() {
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector(state => state.user);
+
   const [listProduct, setListProduct] = useState([]);
+
+  const handleAddToCart = async id => {
+    try {
+      const data = await addToCart({
+        products: [
+          {
+            productId: id,
+            quantity: 1,
+          },
+        ],
+        userId: currentUser._id,
+      });
+
+      if (data.data.status === 200) {
+        dispatch(
+          showSnackbar({ severity: "success", message: data.data.message })
+        );
+        dispatch(addToCartSuccess(data.data.user.cart));
+      } else {
+        dispatch(
+          showSnackbar({ severity: "warning", message: data.data.message })
+        );
+      }
+    } catch (error) {
+      dispatch(showSnackbar(errorSystem));
+    }
+  };
 
   useEffect(() => {
     const fetchListProduct = async () => {
+      dispatch(startLoading());
       try {
         const data = await getListProduct();
         setListProduct(data.data);
       } catch (error) {
-        console.log(error);
+        dispatch(showSnackbar(errorSystem));
       }
+      dispatch(endLoading());
     };
     fetchListProduct();
-  }, []);
+  }, [dispatch]);
 
   return (
     <Container>
@@ -89,8 +130,23 @@ export default function TopProduct() {
                 />
               </Link>
 
-              <div style={{ display: "flex", position: "relative" }}>
-                <p>{product?.title}</p>
+              <div
+                style={{
+                  display: "flex",
+                  position: "relative",
+                  cursor: "pointer",
+                }}
+              >
+                <Link
+                  to={`/product-detail/${product._id}`}
+                  style={{
+                    textDecoration: "none",
+                    fontSize: "14px",
+                    color: "#111",
+                  }}
+                >
+                  <p>{product?.title}</p>
+                </Link>
                 <p
                   style={{
                     display: "block",
@@ -145,6 +201,7 @@ export default function TopProduct() {
                       fontSize: "12px",
                       fontWeight: "bold",
                     }}
+                    onClick={() => handleAddToCart(product._id)}
                   >
                     ADD TO CARD
                   </span>

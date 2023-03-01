@@ -1,5 +1,15 @@
 import { API } from ".";
 
+// Get Info Detail Product
+const getInfoCategory = async id => {
+  try {
+    const res = await API.get("/category/" + id);
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 // Create
 const createCategory = async payloads => {
   try {
@@ -30,6 +40,16 @@ const searchCategory = async search => {
   }
 };
 
+// Update
+const updateCategory = async (payloads, id) => {
+  try {
+    const res = await API.put("/category/" + id, payloads);
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 // Delete Category
 const deleteCategory = async payload => {
   try {
@@ -40,4 +60,11 @@ const deleteCategory = async payload => {
   }
 };
 
-export { createCategory, getListCategory, searchCategory, deleteCategory };
+export {
+  createCategory,
+  getListCategory,
+  searchCategory,
+  deleteCategory,
+  getInfoCategory,
+  updateCategory,
+};

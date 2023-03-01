@@ -27,6 +27,16 @@ const deleteToCart = async payload => {
   }
 };
 
+// Search Category
+const searchUser = async search => {
+  try {
+    const res = await API.get("/users/search?email=" + search);
+    return res;
+  } catch (error) {
+    return error;
+  }
+};
+
 // Get Info User
 const getInfoUser = async id => {
   try {
@@ -37,4 +47,4 @@ const getInfoUser = async id => {
   }
 };
 
-export { addToCart, getInfoUser, updateToCart, deleteToCart };
+export { addToCart, getInfoUser, updateToCart, deleteToCart, searchUser };

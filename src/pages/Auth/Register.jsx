@@ -13,7 +13,9 @@ import { signInWithGoogle } from "../../api/auth";
 import Cookies from "js-cookie";
 import "./Login.css";
 import { useDispatch } from "react-redux";
-import { loginStart, loginSuccess, loginFailure } from "../../redux/userSlice";
+import { loginSuccess } from "../../redux/userSlice";
+import { showSnackbar } from "../../redux/statusSlice";
+import { errorSystem } from "../../data";
 
 const ImgCardLogin = styled("div")(({ theme }) => ({
   backgroundImage: "url(assets/img/img-card-login.jpg)",
@@ -80,7 +82,7 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confimPassword, setConfimPassword] = useState("");
-  const [isRobot, setIsRobot] = useState(true);
+  const [isRobot, setIsRobot] = useState(false);
 
   const handleReset = () => {
     setName("");
@@ -90,21 +92,63 @@ export default function Register() {
   };
 
   const handleRegister = async () => {
-    try {
-      const data = await signUp({
-        name,
-        email,
-        password,
-      });
-      handleReset();
-      console.log(data.data);
-    } catch (error) {
-      console.log(error);
+    if (isRobot) {
+      if (!name || !email || !password || !confimPassword) {
+        dispatch(
+          showSnackbar({
+            severity: "warning",
+            message: "Bạn phải nhập đầy đủ các trường để tạo tài khoản",
+          })
+        );
+      } else {
+        try {
+          if (password !== confimPassword) {
+            setPassword("");
+            setConfimPassword("");
+            dispatch(
+              showSnackbar({
+                severity: "warning",
+                message: "Mật khẩu nhập lại không khớp",
+              })
+            );
+          } else {
+            const data = await signUp({
+              name,
+              email,
+              password,
+            });
+            handleReset();
+            if (data.data.status === 200) {
+              dispatch(
+                showSnackbar({
+                  severity: "success",
+                  message: data.data.message,
+                })
+              );
+            } else {
+              dispatch(
+                showSnackbar({
+                  severity: "error",
+                  message: data.data.message,
+                })
+              );
+            }
+          }
+        } catch (error) {
+          dispatch(showSnackbar(errorSystem));
+        }
+      }
+    } else {
+      dispatch(
+        showSnackbar({
+          severity: "warning",
+          message: "Bạn chưa xác thực người máy",
+        })
+      );
     }
   };
 
   const handleSignInWithGoogle = async () => {
-    dispatch(loginStart());
     try {
       const infoEmail = await signInWithPopup(auth, provider);
       const data = await signInWithGoogle({
@@ -116,7 +160,6 @@ export default function Register() {
       handleReset();
       navigate("/");
     } catch (error) {
-      dispatch(loginFailure());
       console.log(console.error());
     }
   };
@@ -190,7 +233,7 @@ export default function Register() {
               </InputtFiled>
               <ReCAPTCHA
                 sitekey="6LchWqgkAAAAADjS7iMnLoqtNHVlR_96Q4-Vu4gt"
-                onChange={() => setIsRobot(false)}
+                onChange={() => setIsRobot(true)}
               />
               ,
               <Button

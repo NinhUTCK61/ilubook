@@ -6,9 +6,18 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import { styled } from "@mui/material/styles";
 import { getListProduct } from "../../api/product";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  startLoading,
+  endLoading,
+  showSnackbar,
+} from "../../redux/statusSlice";
+import { errorSystem } from "../../data";
 import "./home.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { addToCart } from "../../api/user";
+import { addToCartSuccess } from "../../redux/productSlice";
 
 const AddToCardText = styled("div")(({ theme }) => ({
   padding: "6px 4px",
@@ -42,23 +51,54 @@ const fadeIn = keyframes`
 
 export default function LatestProduct() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector(state => state.user);
   const [listProduct, setListProduct] = useState([]);
 
   const handleChooseProduct = id => {
     navigate("/product-detail/" + id);
   };
 
+  const handleAddToCart = async id => {
+    try {
+      const data = await addToCart({
+        products: [
+          {
+            productId: id,
+            quantity: 1,
+          },
+        ],
+        userId: currentUser._id,
+      });
+
+      if (data.data.status === 200) {
+        dispatch(
+          showSnackbar({ severity: "success", message: data.data.message })
+        );
+        dispatch(addToCartSuccess(data.data.user.cart));
+      } else {
+        dispatch(
+          showSnackbar({ severity: "warning", message: data.data.message })
+        );
+      }
+    } catch (error) {
+      dispatch(showSnackbar(errorSystem));
+    }
+  };
+
   useEffect(() => {
     const fetchListProduct = async () => {
+      dispatch(startLoading());
       try {
         const data = await getListProduct();
         setListProduct(data.data);
       } catch (error) {
-        console.log(error);
+        dispatch(showSnackbar(errorSystem));
       }
+      dispatch(endLoading());
     };
     fetchListProduct();
-  }, []);
+  }, [dispatch]);
 
   const settings = {
     dots: true,
@@ -192,6 +232,7 @@ export default function LatestProduct() {
                       fontSize: "12px",
                       fontWeight: "bold",
                     }}
+                    onClick={() => handleAddToCart(product._id)}
                   >
                     ADD TO CARD
                   </span>

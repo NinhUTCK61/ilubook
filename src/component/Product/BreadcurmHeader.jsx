@@ -1,5 +1,6 @@
 import React from "react";
 import { Container, Typography, Box } from "@mui/material";
+import { Link } from "react-router-dom";
 
 const BreadcurmHeader = ({ title }) => {
   return (
@@ -22,8 +23,29 @@ const BreadcurmHeader = ({ title }) => {
         >
           {title}
         </Typography>
-        <div style={{ fontSize: "14px", fontWeight: 600, color: "#414141" }}>
-          Home / Shop
+        <div>
+          <Link
+            to="/"
+            style={{
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#414141",
+              textDecoration: "none",
+            }}
+          >
+            <span>Home </span>
+          </Link>
+          <Link
+            to="/"
+            style={{
+              fontSize: "14px",
+              fontWeight: 600,
+              color: "#414141",
+              textDecoration: "none",
+            }}
+          >
+            <span>/ Shop</span>
+          </Link>
         </div>
       </Container>
     </Box>

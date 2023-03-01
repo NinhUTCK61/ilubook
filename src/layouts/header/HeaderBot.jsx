@@ -54,7 +54,7 @@ const MenuItem = styled("li")`
     top: 10px;
     left: 4px;
     content: "";
-    width: 80px;
+    width: 200px;
     height: 30px;
     position: absolute;
     z-index: 1;

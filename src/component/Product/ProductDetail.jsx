@@ -8,11 +8,13 @@ import ImageZoom from "./ImageZoom";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../api/user";
+import { addToCartSuccess } from "../../redux/productSlice";
 import {
-  addToCartSuccess,
-  fauilreAddToCart,
-  startAddToCart,
-} from "../../redux/productSlice";
+  endLoading,
+  showSnackbar,
+  startLoading,
+} from "../../redux/statusSlice";
+import { errorSystem } from "../../data";
 
 const ListColor = styled("div")`
   display: flex;
@@ -104,7 +106,7 @@ export default function ProductDetail({ infoProduct }) {
     if (!currentUser) {
       navigate("/login");
     } else {
-      dispatch(startAddToCart());
+      dispatch(startLoading());
       try {
         const data = await addToCart({
           products: [
@@ -116,11 +118,20 @@ export default function ProductDetail({ infoProduct }) {
           userId: currentUser._id,
         });
 
-        dispatch(addToCartSuccess(data.data.user.cart));
+        if (data.data.status === 200) {
+          dispatch(
+            showSnackbar({ severity: "success", message: data.data.message })
+          );
+          dispatch(addToCartSuccess(data.data.user.cart));
+        } else {
+          dispatch(
+            showSnackbar({ severity: "warning", message: data.data.message })
+          );
+        }
       } catch (error) {
-        dispatch(fauilreAddToCart());
-        console.log(error);
+        dispatch(showSnackbar(errorSystem));
       }
+      dispatch(endLoading());
     }
   };
 

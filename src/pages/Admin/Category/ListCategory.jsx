@@ -16,28 +16,20 @@ import {
   DialogContentText,
   DialogActions,
   Checkbox,
-  TextareaAutosize,
-  FormControlLabel,
+  Paper,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { FaTimes } from "react-icons/fa";
 import { AiFillEdit } from "react-icons/ai";
-import {
-  deleteProduct,
-  getInfoProduct,
-  searchProduct,
-  updateProduct,
-} from "../../../api/product";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import { storage } from "../../../helper/firebase";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { shortenString } from "../../../helper";
 import {
   createCategory,
   deleteCategory,
+  getInfoCategory,
   getListCategory,
   searchCategory,
+  updateCategory,
 } from "../../../api/category";
 
 const BodyCart = styled("div")(({ theme }) => ({
@@ -67,30 +59,17 @@ function BootstrapDialogTitle(props) {
   );
 }
 
-const StyledTextareaAutosize = styled(TextareaAutosize)`
-  border-radius: 4px;
-  padding: 8px;
-  outline: none;
-  resize: none;
-  flex: 1;
-  box-sizing: border-box;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.23);
-  width: 100%;
-`;
-
 export default function ListCategory() {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   const [searchText, setSearchText] = useState("");
 
-  const [listProduct, setListProduct] = useState([]);
   const [listCategory, setListCategory] = useState([]);
 
-  const [idDeleteProduct, setIdDeleteProduct] = useState([]);
   const [idDeleteCategory, setIdDeleteCategory] = useState([]);
 
-  const [idUpdateProduct, setIdUpdateProduct] = useState("");
+  const [idUpdateCategory, setIdUpdateCategory] = useState("");
   const [listArrayChecked, setListArrayChecked] = useState([]);
   const [typeDetele, setTypeDelete] = useState("");
 
@@ -98,17 +77,10 @@ export default function ListCategory() {
   const [isOpenDialogAdd, setIsOpenDialogAdd] = useState(false);
   const [isOpenDialogUpdate, setIsOpenDialogUpdate] = useState(false);
 
-  const [image, setImage] = useState("");
-  const [listDiffImg, setListDiffImg] = useState("");
-
-  const [isNew, setIsNew] = useState(false);
   const [title, setTitle] = useState("");
-  const [price, setPrice] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const [description, setDescription] = useState("");
-  const [shipping, setShipping] = useState("");
+  const [listProduct, setListProduct] = useState([]);
 
-  const isAllSelected = listProduct.every(i =>
+  const isAllSelected = listCategory.every(i =>
     listArrayChecked.includes(i._id)
   );
 
@@ -123,15 +95,11 @@ export default function ListCategory() {
     }
   };
 
-  const handleCheckboxNewChange = event => {
-    setIsNew(event.target.checked);
-  };
-
   const handleSelectAllClick = () => {
     if (isAllSelected) {
       setListArrayChecked([]);
     } else {
-      setListArrayChecked(listProduct?.map(i => i._id));
+      setListArrayChecked(listCategory?.map(i => i._id));
     }
   };
 
@@ -162,15 +130,10 @@ export default function ListCategory() {
 
   const handleOpenCofirmUpdate = async id => {
     try {
-      setIdUpdateProduct(id);
-      const data = await getInfoProduct(id);
+      setIdUpdateCategory(id);
+      const data = await getInfoCategory(id);
       setTitle(data.data.title);
-      setPrice(data.data.price);
-      setDescription(data.data.description);
-      setShipping(data.data.shipping);
-      setIsNew(data.data.isNew);
-      setImage(data.data.image);
-      setListDiffImg(data.data.listDiffImg);
+      setListProduct(data.data.listProduct);
     } catch (error) {
       console.log(error);
     }
@@ -189,81 +152,6 @@ export default function ListCategory() {
     }
   };
 
-  const handleUploadImage = e => {
-    const file = e.target.files[0];
-    const id = Date.now(); // generate random id
-    const storageRef = ref(storage, `product/${file.name}-${id}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
-    uploadTask.on(
-      "state_changed",
-      snapshot => {
-        const progress =
-          (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log(progress);
-      },
-      error => {},
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then(downloadURL => {
-          setImage(downloadURL);
-        });
-      }
-    );
-  };
-
-  const handleUploadDiffImage = e => {
-    const files = e.target.files;
-    const uploadPromises = [];
-
-    // Iterate over each file and upload it
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const id = Date.now(); // generate random id
-      const storageRef = ref(storage, `product/${file.name}-${id}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      const uploadPromise = new Promise((resolve, reject) => {
-        // Listen for state changes to track upload progress
-        uploadTask.on(
-          "state_changed",
-          snapshot => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log(`File ${i + 1} progress: ${progress}%`);
-          },
-          error => {
-            console.log(`File ${i + 1} upload failed: ${error}`);
-            reject(error);
-          },
-          () => {
-            // Get the download URL and resolve the promise
-            getDownloadURL(uploadTask.snapshot.ref).then(downloadURL => {
-              resolve(downloadURL);
-            });
-          }
-        );
-      });
-
-      uploadPromises.push(uploadPromise);
-    }
-    Promise.all(uploadPromises)
-      .then(downloadURLs => {
-        setListDiffImg([...listDiffImg, ...downloadURLs]);
-      })
-      .catch(error => {
-        console.log(`File upload failed: ${error}`);
-      });
-  };
-
-  const removeImage = () => {
-    setImage("");
-  };
-
-  const removeListDiffImg = index => {
-    const newListDiffImg = [...listDiffImg];
-    newListDiffImg.splice(index, 1);
-    setListDiffImg(newListDiffImg);
-  };
-
   const hanldeAddCategory = async () => {
     const payloads = {
       title,
@@ -276,19 +164,18 @@ export default function ListCategory() {
     }
   };
 
+  const handleRemoveProduct = id => {
+    const newListProduct = listProduct.filter(i => i._id !== id);
+    setListProduct(newListProduct);
+  };
+
   const handleUpdateProduct = async () => {
     const payloads = {
       title,
-      price,
-      quantity,
-      shipping,
-      isNew,
-      description,
-      image,
-      listDiffImg,
+      listProduct: listProduct?.map(i => i._id),
     };
     try {
-      await updateProduct(payloads, idUpdateProduct);
+      await updateCategory(payloads, idUpdateCategory);
       window.location.reload();
     } catch (error) {
       console.log(error);
@@ -308,15 +195,8 @@ export default function ListCategory() {
 
   const handleCloseDialogUpdate = () => {
     setIsOpenDialogUpdate(false);
-    setIdUpdateProduct("");
+    setIdUpdateCategory("");
     setTitle("");
-    setPrice("");
-    setQuantity(1);
-    setShipping("");
-    setIsNew(false);
-    setDescription("");
-    setImage("");
-    setListDiffImg([]);
   };
 
   useEffect(() => {
@@ -379,16 +259,12 @@ export default function ListCategory() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    {listArrayChecked?.length > 0 ? (
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={isAllSelected}
-                          onChange={handleSelectAllClick}
-                        />
-                      </TableCell>
-                    ) : (
-                      <TableCell></TableCell>
-                    )}
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={isAllSelected}
+                        onChange={handleSelectAllClick}
+                      />
+                    </TableCell>
                     <TableCell>Index</TableCell>
                     <TableCell>Title</TableCell>
                     <TableCell>Products</TableCell>
@@ -536,142 +412,57 @@ export default function ListCategory() {
           id="customized-dialog-title"
           onClose={handleCloseDialogUpdate}
         >
-          Update Product
+          Update Category
         </BootstrapDialogTitle>
         <DialogContent dividers>
-          <Box display="flex" justifyContent="space-between" gap="40px">
+          <Box mb={2}>
             <TextField
               label="Title"
               variant="standard"
               value={title}
               onChange={e => setTitle(e.target.value)}
-            />
-            <TextField
-              label="Price"
-              variant="standard"
-              value={price}
-              onChange={e => setPrice(e.target.value)}
+              style={{ width: "100%" }}
             />
           </Box>
-          <Box mt={2} display="flex" justifyContent="space-between" gap="40px">
-            <TextField
-              label="Quantity"
-              variant="standard"
-              type="number"
-              value={quantity}
-              onChange={e => setQuantity(e.target.value)}
-            />
-            <TextField
-              label="Shipping"
-              variant="standard"
-              value={shipping}
-              onChange={e => setShipping(e.target.value)}
-            />
-          </Box>
-          <Box mt={2}>
-            <FormControlLabel
-              control={
-                <Checkbox checked={isNew} onChange={handleCheckboxNewChange} />
-              }
-              label="New"
-            />
-          </Box>
-          <Box mt={2}>
-            <StyledTextareaAutosize
-              placeholder="Description"
-              minRows={10}
-              maxRows={15}
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-            />
-          </Box>
-          <Box mt={2} display="flex" justifyContent={"space-between"}>
-            <Box>
-              {image ? (
-                <Box>
-                  <Box>
-                    <div>Image:</div>
-                  </Box>
-                  <Box mt={2} display="flex" alignContent="center" gap="10px">
-                    <a
-                      href={image}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ textDecoration: "none", color: "#000000de" }}
-                    >
-                      {shortenString(image)}
-                    </a>
-                    <FaTimes
-                      style={{ color: "#f51167", cursor: "pointer" }}
-                      onClick={removeImage}
-                    />
-                  </Box>
-                </Box>
-              ) : (
-                <div>
-                  <input
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    id="upload-image"
-                    type="file"
-                    onChange={e => handleUploadImage(e)}
-                  />
-                  <label htmlFor="upload-image">
-                    <Button variant="contained" component="span" size="small">
-                      Upload Image
-                    </Button>
-                  </label>
-                </div>
-              )}
-            </Box>
-
-            <Box>
-              <input
-                accept="image/*"
-                style={{ display: "none" }}
-                id="upload-diff-image"
-                multiple
-                type="file"
-                onChange={handleUploadDiffImage}
-              />
-              <label htmlFor="upload-diff-image">
-                <Button variant="contained" component="span" size="small">
-                  Upload Diff Image
-                </Button>
-              </label>
-
-              {listDiffImg?.length > 0 && (
-                <Box mt={2}>
-                  <Box display="flex" alignContent="center" gap="10px">
-                    <div>List Diff Image: </div>
-                  </Box>
-                  {listDiffImg?.map((e, index) => (
-                    <Box
-                      key={index}
-                      display="flex"
-                      alignContent="center"
-                      gap="10px"
-                      mt={2}
-                    >
-                      <a
-                        href={e}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ textDecoration: "none", color: "#000000de" }}
-                      >
-                        {shortenString(e)}
-                      </a>
-
-                      <FaTimes
-                        style={{ color: "#f51167", cursor: "pointer" }}
-                        onClick={() => removeListDiffImg(index)}
+          <TableContainer component={Paper}>
+            <Table aria-label="simple table" sx={{ minWidth: "500px" }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Image</TableCell>
+                  <TableCell>Title</TableCell>
+                  <TableCell>Setting</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {listProduct?.map(product => (
+                  <TableRow key={product._id}>
+                    <TableCell>
+                      <img
+                        src={product.image}
+                        style={{
+                          width: "80px",
+                          height: "80px",
+                          objectFit: "cover",
+                        }}
+                        alt={product.image}
                       />
-                    </Box>
-                  ))}
-                </Box>
-              )}
-            </Box>
-          </Box>
+                    </TableCell>
+                    <TableCell>{product.title}</TableCell>
+                    <TableCell>
+                      <FaTimes
+                        style={{
+                          color: "#f51167",
+                          fontSize: "20px",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => handleRemoveProduct(product._id)}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </DialogContent>
         <DialogActions>
           <Button

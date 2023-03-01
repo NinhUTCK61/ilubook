@@ -416,16 +416,13 @@ export default function ListProduct() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    {listArrayChecked?.length > 0 ? (
-                      <TableCell padding="checkbox">
-                        <Checkbox
-                          checked={isAllSelected}
-                          onChange={handleSelectAllClick}
-                        />
-                      </TableCell>
-                    ) : (
-                      <TableCell></TableCell>
-                    )}
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        checked={isAllSelected}
+                        onChange={handleSelectAllClick}
+                      />
+                    </TableCell>
+
                     <TableCell>Image</TableCell>
                     <TableCell>Title</TableCell>
                     <TableCell>Price</TableCell>

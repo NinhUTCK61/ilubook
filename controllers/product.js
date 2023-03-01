@@ -91,6 +91,18 @@ export const deleteProduct = async (req, res, next) => {
       })
     );
 
+    const categories = await Category.find({ listProduct: { $in: listId } });
+
+    await Promise.all(
+      categories.map(async category => {
+        category.listProduct = category.listProduct.filter(
+          item => !listId.includes(item.toString())
+        );
+
+        await category.save();
+      })
+    );
+
     // Remove the products from the product collection
     const deletedProducts = await Product.deleteMany({
       _id: { $in: listId },

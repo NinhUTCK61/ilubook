@@ -44,7 +44,12 @@ export const signin = async (req, res, next) => {
             maxAge: 3600000,
           })
           .status(200)
-          .json({ ...others, token, status: 200 });
+          .json({
+            ...others,
+            token,
+            status: 200,
+            message: "Đăng nhập thành công",
+          });
       }
     }
   } catch (error) {
@@ -64,7 +69,7 @@ export const googleAuth = async (req, res, next) => {
           httpOnly: true,
         })
         .status(200)
-        .json({ ...user._doc, token });
+        .json({ ...user._doc, token, message: "Đăng nhập thành công" });
     } else {
       const newUser = new User({
         ...req.body,
@@ -77,7 +82,7 @@ export const googleAuth = async (req, res, next) => {
           httpOnly: true,
         })
         .status(200)
-        .json({ ...savedUser._doc, token });
+        .json({ ...savedUser._doc, token, message: "Đăng nhập thành công" });
     }
   } catch (err) {
     next(err);

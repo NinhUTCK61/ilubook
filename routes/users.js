@@ -6,6 +6,7 @@ import {
   addTocart,
   updateToCart,
   deleteToCart,
+  searchUser,
 } from "../controllers/user.js";
 import { verifyToken } from "../verifyToken.js";
 
@@ -17,6 +18,8 @@ router.put("/add-to-cart", addTocart);
 router.put("/update-to-cart", updateToCart);
 //delete product to cart
 router.put("/delete-to-cart", deleteToCart);
+// Search User
+router.get("/search", searchUser);
 //update user
 router.put("/:id", verifyToken, update);
 //delete user

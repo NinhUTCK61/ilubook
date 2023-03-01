@@ -35,9 +35,11 @@ export const addTocart = async (req, res, next) => {
     });
 
     if (invalidProducts.length > 0) {
-      return res
-        .status(400)
-        .json({ message: "Invalid products", invalidProducts });
+      return res.status(200).json({
+        message: "Sản phẩm tạm thời hết hàng, vui lòng đặt lại sau",
+        invalidProducts,
+        status: 201,
+      });
     }
 
     products.forEach(p => {
@@ -61,7 +63,22 @@ export const addTocart = async (req, res, next) => {
         },
       }))
     );
-    res.status(200).json({ message: "Thêm mới sản phẩm thành công", user });
+    res.status(200).json({
+      message: "Sản phẩm được thêm vào giỏ hàng thành công",
+      user,
+      status: 200,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const searchUser = async (req, res, next) => {
+  try {
+    const users = await User.find({
+      email: { $regex: `${req.query.email}`, $options: "i" },
+    }).populate("cart.product");
+    res.status(200).json(users);
   } catch (error) {
     next(error);
   }
@@ -88,7 +105,9 @@ export const deleteToCart = async (req, res, next) => {
     next(error);
   }
 };
+
 export const updateToCart = async (req, res, next) => {
+  let error;
   const { userId, products } = req.body;
   try {
     const user = await User.findById(userId).populate("cart.product");
@@ -110,16 +129,52 @@ export const updateToCart = async (req, res, next) => {
         }
       } else {
         // Nếu sản phẩm đã có trong giỏ hàng, cập nhật lại quantity
-        if (quantity < infoProduct.quantity) {
+        if (quantity <= infoProduct.quantity) {
           cartItem.quantity += quantity;
           infoProduct.quantity -= quantity;
           await infoProduct.save();
+        } else {
+          error = `${infoProduct.title} hiện còn ${infoProduct.quantity} sản phẩm trong kho. Vui lòng đặt lại sản phẩm này.`;
         }
       }
     }
 
+    // Những product bị xóa khỏi cart
+    const listIdProduct = products?.map(i => i.productId);
+    const listIdCart = cart.map(i => i.product._id.toString());
+
+    const idRemoveFromCart = listIdCart?.filter(
+      i => !listIdProduct.includes(i)
+    );
+
+    if (idRemoveFromCart?.length > 0) {
+      const removedItems = user.cart.filter(item =>
+        idRemoveFromCart.includes(item.product._id.toString())
+      );
+
+      user.cart = user.cart.filter(
+        item => !idRemoveFromCart.includes(item.product._id.toString())
+      );
+
+      const updateProduct = removedItems.map(item => ({
+        quantity: item.quantity,
+        id: item.product._id,
+      }));
+
+      const updatePromises = updateProduct.map(item => {
+        return Product.findByIdAndUpdate(
+          item.id,
+          { $inc: { quantity: item.quantity } },
+          { new: true }
+        );
+      });
+      await Promise.all(updatePromises);
+    }
     await user.save();
-    res.status(200).json(user);
+
+    res
+      .status(200)
+      .json({ user: user, message: "Cập nhật giỏ hàng thành công", error });
   } catch (error) {
     next(error);
   }

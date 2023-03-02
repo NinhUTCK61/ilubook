@@ -14,7 +14,7 @@ export const addToCategory = async (req, res, next) => {
       { _id: idCategory },
       { $push: { listProduct: { $each: newIdProduct } } }
     );
-    return res.status(200).json(result);
+    return res.status(200).json({ message: "Thêm vào danh mục thành công" });
   } catch (error) {
     next(error);
   }
@@ -69,7 +69,7 @@ export const updateProduct = async (req, res, next) => {
       { new: true }
     );
 
-    res.status(200).json(updatedProduct);
+    res.status(200).json({ message: "Cập nhật sản phẩm thành công" });
   } catch (error) {
     next(error);
   }
@@ -111,7 +111,7 @@ export const deleteProduct = async (req, res, next) => {
     if (deletedProducts.deletedCount === 0) {
       return res.status(404).json({ message: "Products not found" });
     }
-    res.status(200).json({ message: "Products deleted successfully" });
+    res.status(200).json({ message: "Xóa thành công" });
   } catch (error) {
     next(error);
   }

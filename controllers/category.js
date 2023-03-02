@@ -51,7 +51,7 @@ export const updateCategory = async (req, res, next) => {
       { new: true }
     );
 
-    res.status(200).json(updatedCategory);
+    res.status(200).json({ message: "Cập nhật thành công" });
   } catch (error) {
     next(error);
   }
@@ -65,7 +65,7 @@ export const deleteCategory = async (req, res, next) => {
       _id: { $in: listId },
     });
 
-    res.status(200).json({ message: "Products deleted successfully" });
+    res.status(200).json({ message: "Xóa danh mục thành công" });
   } catch (error) {
     next(error);
   }

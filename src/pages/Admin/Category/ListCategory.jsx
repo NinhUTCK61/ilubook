@@ -31,6 +31,13 @@ import {
   searchCategory,
   updateCategory,
 } from "../../../api/category";
+import { useDispatch } from "react-redux";
+import {
+  endLoading,
+  showSnackbar,
+  startLoading,
+} from "../../../redux/statusSlice";
+import { errorSystem } from "../../../data";
 
 const BodyCart = styled("div")(({ theme }) => ({
   width: "100%",
@@ -62,6 +69,7 @@ function BootstrapDialogTitle(props) {
 export default function ListCategory() {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const dispatch = useDispatch();
 
   const [searchText, setSearchText] = useState("");
 
@@ -104,6 +112,7 @@ export default function ListCategory() {
   };
 
   const hanldeDelete = async () => {
+    dispatch(startLoading());
     try {
       const newListCategory = listCategory.filter(i =>
         typeDetele === "only"
@@ -111,12 +120,16 @@ export default function ListCategory() {
           : !listArrayChecked.includes(i._id)
       );
       setListCategory(newListCategory);
-      await deleteCategory({
+      const data = await deleteCategory({
         listId: typeDetele === "only" ? idDeleteCategory : listArrayChecked,
       });
+      dispatch(
+        showSnackbar({ severity: "success", message: data.data.message })
+      );
     } catch (error) {
-      console.log(error);
+      dispatch(showSnackbar(errorSystem));
     }
+    dispatch(endLoading());
     handleClose();
   };
 
@@ -142,26 +155,49 @@ export default function ListCategory() {
 
   const handleSearch = async e => {
     if (e.keyCode === 13) {
+      dispatch(startLoading());
       try {
         const data = await searchCategory(searchText);
+        if (data.data.length === 0) {
+          dispatch(
+            showSnackbar({
+              severity: "info",
+              message: "Không có kết quả tìm kiếm",
+            })
+          );
+        }
         setListCategory(data.data);
         setSearchText("");
       } catch (error) {
-        console.log(error);
+        dispatch(showSnackbar(errorSystem));
       }
+      dispatch(endLoading());
     }
   };
 
   const hanldeAddCategory = async () => {
+    if (!title) {
+      return dispatch(
+        showSnackbar({
+          severity: "warning",
+          message: "Vui lòng nhập tiêu đề trước khi tạo sản phẩm",
+        })
+      );
+    }
     const payloads = {
       title,
     };
+    dispatch(startLoading());
     try {
-      await createCategory(payloads);
+      const data = await createCategory(payloads);
+      dispatch(
+        showSnackbar({ severity: "success", message: data.data.message })
+      );
       window.location.reload();
     } catch (error) {
-      console.log(error);
+      dispatch(showSnackbar(errorSystem));
     }
+    dispatch(endLoading());
   };
 
   const handleRemoveProduct = id => {
@@ -170,16 +206,29 @@ export default function ListCategory() {
   };
 
   const handleUpdateProduct = async () => {
+    if (!title) {
+      return dispatch(
+        showSnackbar({
+          severity: "warning",
+          message: "Phải nhập đầy đủ các trường",
+        })
+      );
+    }
     const payloads = {
       title,
       listProduct: listProduct?.map(i => i._id),
     };
+    dispatch(startLoading());
     try {
-      await updateCategory(payloads, idUpdateCategory);
+      const data = await updateCategory(payloads, idUpdateCategory);
+      dispatch(
+        showSnackbar({ severity: "success", message: data.data.message })
+      );
       window.location.reload();
     } catch (error) {
-      console.log(error);
+      dispatch(showSnackbar(errorSystem));
     }
+    dispatch(endLoading());
   };
 
   const handleClose = () => {
@@ -201,11 +250,25 @@ export default function ListCategory() {
 
   useEffect(() => {
     const fetchListCategory = async () => {
-      const data = await getListCategory();
-      setListCategory(data.data);
+      dispatch(startLoading());
+      try {
+        const data = await getListCategory();
+        setListCategory(data.data);
+        if (data.data?.length === 0) {
+          dispatch(
+            showSnackbar({
+              severity: "info",
+              message: "Hiện chưa có danh mục nào. Hãy tạo danh mục.",
+            })
+          );
+        }
+      } catch (error) {
+        dispatch(showSnackbar(errorSystem));
+      }
+      dispatch(endLoading());
     };
     fetchListCategory();
-  }, []);
+  }, [dispatch]);
 
   return (
     <Container>

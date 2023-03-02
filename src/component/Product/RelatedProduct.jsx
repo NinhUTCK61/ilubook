@@ -7,6 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { getListProduct } from "../../api/product";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useDispatch, useSelector } from "react-redux";
+import { showSnackbar } from "../../redux/statusSlice";
+import { errorSystem } from "../../data";
+import { addToCart } from "../../api/user";
+import { addToCartSuccess } from "../../redux/productSlice";
 
 const AddToCardText = styled("div")(({ theme }) => ({
   padding: "6px 4px",
@@ -39,6 +44,8 @@ const fadeIn = keyframes`
 `;
 
 export default function RelatedProduct() {
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector(state => state.user);
   const navigate = useNavigate();
   const [listProduct, setListProduct] = useState([]);
 
@@ -72,6 +79,41 @@ export default function RelatedProduct() {
 
   const handleChooseProduct = id => {
     navigate("/product-detail/" + id);
+  };
+
+  const handleAddToCart = async id => {
+    if (!currentUser) {
+      return dispatch(
+        showSnackbar({
+          severity: "info",
+          message: "Bạn phải đăng nhập để thêm vào giỏ hàng",
+        })
+      );
+    }
+    try {
+      const data = await addToCart({
+        products: [
+          {
+            productId: id,
+            quantity: 1,
+          },
+        ],
+        userId: currentUser._id,
+      });
+
+      if (data.data.status === 200) {
+        dispatch(
+          showSnackbar({ severity: "success", message: data.data.message })
+        );
+        dispatch(addToCartSuccess(data.data.user.cart));
+      } else {
+        dispatch(
+          showSnackbar({ severity: "warning", message: data.data.message })
+        );
+      }
+    } catch (error) {
+      dispatch(showSnackbar(errorSystem));
+    }
   };
 
   useEffect(() => {
@@ -170,6 +212,7 @@ export default function RelatedProduct() {
                       fontSize: "12px",
                       fontWeight: "bold",
                     }}
+                    onClick={() => handleAddToCart(product._id)}
                   >
                     ADD TO CARD
                   </span>

@@ -6,6 +6,11 @@ import { Link } from "react-router-dom";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import { getListProduct } from "../../api/product";
+import { useDispatch, useSelector } from "react-redux";
+import { showSnackbar } from "../../redux/statusSlice";
+import { errorSystem } from "../../data";
+import { addToCart } from "../../api/user";
+import { addToCartSuccess } from "../../redux/productSlice";
 
 const AddToCardText = styled("div")(({ theme }) => ({
   padding: "6px 4px",
@@ -38,7 +43,44 @@ const fadeIn = keyframes`
 `;
 
 export default function Introduce() {
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector(state => state.user);
   const [listProduct, setListProduct] = useState([]);
+
+  const handleAddToCart = async id => {
+    if (!currentUser) {
+      return dispatch(
+        showSnackbar({
+          severity: "info",
+          message: "Bạn phải đăng nhập để thêm vào giỏ hàng",
+        })
+      );
+    }
+    try {
+      const data = await addToCart({
+        products: [
+          {
+            productId: id,
+            quantity: 1,
+          },
+        ],
+        userId: currentUser._id,
+      });
+
+      if (data.data.status === 200) {
+        dispatch(
+          showSnackbar({ severity: "success", message: data.data.message })
+        );
+        dispatch(addToCartSuccess(data.data.user.cart));
+      } else {
+        dispatch(
+          showSnackbar({ severity: "warning", message: data.data.message })
+        );
+      }
+    } catch (error) {
+      dispatch(showSnackbar(errorSystem));
+    }
+  };
 
   useEffect(() => {
     const fetchListProduct = async () => {
@@ -144,6 +186,7 @@ export default function Introduce() {
                       fontSize: "12px",
                       fontWeight: "bold",
                     }}
+                    onClick={() => handleAddToCart(product._id)}
                   >
                     ADD TO CARD
                   </span>

@@ -41,6 +41,13 @@ import { storage } from "../../../helper/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { shortenString } from "../../../helper";
 import { getListCategory } from "../../../api/category";
+import { useDispatch } from "react-redux";
+import {
+  endLoading,
+  showSnackbar,
+  startLoading,
+} from "../../../redux/statusSlice";
+import { errorSystem } from "../../../data";
 
 const BodyCart = styled("div")(({ theme }) => ({
   width: "100%",
@@ -83,6 +90,7 @@ const StyledTextareaAutosize = styled(TextareaAutosize)`
 export default function ListProduct() {
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const dispatch = useDispatch();
 
   const [searchText, setSearchText] = useState("");
 
@@ -100,6 +108,8 @@ export default function ListProduct() {
   const [isOpenDialogUpdate, setIsOpenDialogUpdate] = useState(false);
   const [isOpenDialogAddToCategory, setIsOpenDialogAddToCategory] =
     useState(false);
+
+  const [isOpenCreate, setIsOpenCreate] = useState(true);
 
   const [image, setImage] = useState("");
   const [listDiffImg, setListDiffImg] = useState("");
@@ -139,6 +149,7 @@ export default function ListProduct() {
   };
 
   const hanldeDelete = async () => {
+    dispatch(startLoading());
     try {
       const newListProduct = listProduct.filter(i =>
         typeDetele === "only"
@@ -146,13 +157,17 @@ export default function ListProduct() {
           : !listArrayChecked.includes(i._id)
       );
       setListProduct(newListProduct);
-      await deleteProduct({
+      const data = await deleteProduct({
         listId: typeDetele === "only" ? idDeleteProduct : listArrayChecked,
       });
+      dispatch(
+        showSnackbar({ severity: "success", message: data.data.message })
+      );
     } catch (error) {
-      console.log(error);
+      dispatch(showSnackbar(errorSystem));
     }
     handleClose();
+    dispatch(endLoading());
   };
 
   const handleOpenCofirmDelete = (id, type) => {
@@ -182,17 +197,29 @@ export default function ListProduct() {
 
   const handleSearch = async e => {
     if (e.keyCode === 13) {
+      dispatch(startLoading());
       try {
         const data = await searchProduct(searchText);
+        if (data.data?.length === 0) {
+          dispatch(
+            showSnackbar({
+              severity: "info",
+              message: "Không có kết quả tìm kiếm",
+            })
+          );
+        }
         setListProduct(data.data);
         setSearchText("");
       } catch (error) {
-        console.log(error);
+        dispatch(showSnackbar(errorSystem));
       }
+      dispatch(endLoading());
     }
   };
 
   const handleUploadImage = e => {
+    setIsOpenCreate(false);
+    dispatch(startLoading());
     const file = e.target.files[0];
     const id = Date.now(); // generate random id
     const storageRef = ref(storage, `product/${file.name}-${id}`);
@@ -208,12 +235,16 @@ export default function ListProduct() {
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then(downloadURL => {
           setImage(downloadURL);
+          setIsOpenCreate(true);
+          dispatch(endLoading());
         });
       }
     );
   };
 
   const handleUploadDiffImage = e => {
+    setIsOpenCreate(false);
+    dispatch(startLoading());
     const files = e.target.files;
     const uploadPromises = [];
 
@@ -251,9 +282,13 @@ export default function ListProduct() {
     Promise.all(uploadPromises)
       .then(downloadURLs => {
         setListDiffImg([...listDiffImg, ...downloadURLs]);
+        setIsOpenCreate(true);
+        dispatch(endLoading());
       })
       .catch(error => {
         console.log(`File upload failed: ${error}`);
+        setIsOpenCreate(true);
+        dispatch(endLoading());
       });
   };
 
@@ -268,6 +303,22 @@ export default function ListProduct() {
   };
 
   const hanldeAddProduct = async () => {
+    if (!title || !price || !quantity || !shipping || !description) {
+      return dispatch(
+        showSnackbar({
+          severity: "warning",
+          message: "Bạn phải nhập đầy đủ các trường trước khi tạo sản phẩm",
+        })
+      );
+    }
+    if (!image) {
+      return dispatch(
+        showSnackbar({
+          severity: "warning",
+          message: "Bạn chưa upload ảnh nền",
+        })
+      );
+    }
     const payloads = {
       title,
       price,
@@ -278,15 +329,36 @@ export default function ListProduct() {
       image,
       listDiffImg,
     };
+    dispatch(startLoading());
     try {
-      await createProduct(payloads);
+      const res = await createProduct(payloads);
+      dispatch(
+        showSnackbar({ severity: "success", message: res.data.message })
+      );
       window.location.reload();
     } catch (error) {
-      console.log(error);
+      dispatch(showSnackbar(errorSystem));
     }
+    dispatch(endLoading());
   };
 
   const handleUpdateProduct = async () => {
+    if (!title || !price || !quantity || !shipping || !description) {
+      return dispatch(
+        showSnackbar({
+          severity: "warning",
+          message: "Bạn phải nhập đầy đủ các trường trước khi tạo sản phẩm",
+        })
+      );
+    }
+    if (!image) {
+      return dispatch(
+        showSnackbar({
+          severity: "warning",
+          message: "Bạn chưa upload ảnh nền",
+        })
+      );
+    }
     const payloads = {
       title,
       price,
@@ -297,24 +369,34 @@ export default function ListProduct() {
       image,
       listDiffImg,
     };
+    dispatch(startLoading());
     try {
-      await updateProduct(payloads, idUpdateProduct);
+      const data = await updateProduct(payloads, idUpdateProduct);
       window.location.reload();
+      dispatch(
+        showSnackbar({ severity: "success", message: data.data.message })
+      );
     } catch (error) {
-      console.log(error);
+      dispatch(showSnackbar(errorSystem));
     }
+    dispatch(endLoading());
   };
 
   const handleAddToCategory = async () => {
+    dispatch(startLoading());
     try {
-      await addToCategory({
+      const data = await addToCategory({
         idCategory: category,
         idProduct: listArrayChecked,
       });
       handleCloseDialogAddToCategory();
+      dispatch(
+        showSnackbar({ severity: "success", message: data.data.message })
+      );
     } catch (error) {
-      console.log(error);
+      dispatch(showSnackbar(errorSystem));
     }
+    dispatch(endLoading());
   };
 
   const handleClose = () => {
@@ -355,14 +437,28 @@ export default function ListProduct() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const dataProduct = await getListProduct();
-      const dataCategory = await getListCategory();
-      setListProduct(dataProduct.data);
-      setListCategory(dataCategory.data);
-      setCategory(dataCategory?.data[0]?._id);
+      dispatch(startLoading());
+      try {
+        const dataProduct = await getListProduct();
+        const dataCategory = await getListCategory();
+        if (dataProduct.data?.length === 0) {
+          dispatch(
+            showSnackbar({
+              severity: "info",
+              message: "Hiện chưa có sản phầm nào. Hãy tạo sản phẩm.",
+            })
+          );
+        }
+        setListProduct(dataProduct.data);
+        setListCategory(dataCategory.data);
+        setCategory(dataCategory?.data[0]?._id);
+      } catch (error) {
+        dispatch(showSnackbar(errorSystem));
+      }
+      dispatch(endLoading());
     };
     fetchData();
-  }, []);
+  }, [dispatch]);
 
   return (
     <Container>
@@ -710,9 +806,11 @@ export default function ListProduct() {
           >
             Cancel
           </Button>
-          <Button onClick={hanldeAddProduct} variant="contained" size="small">
-            Create
-          </Button>
+          {isOpenCreate && (
+            <Button onClick={hanldeAddProduct} variant="contained" size="small">
+              Create
+            </Button>
+          )}
         </DialogActions>
       </BootstrapDialog>
 
@@ -872,13 +970,15 @@ export default function ListProduct() {
           >
             Cancel
           </Button>
-          <Button
-            onClick={handleUpdateProduct}
-            variant="contained"
-            size="small"
-          >
-            Update
-          </Button>
+          {isOpenCreate && (
+            <Button
+              onClick={handleUpdateProduct}
+              variant="contained"
+              size="small"
+            >
+              Update
+            </Button>
+          )}
         </DialogActions>
       </BootstrapDialog>
 

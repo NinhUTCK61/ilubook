@@ -17,7 +17,7 @@ import {
 import { getInfoUser, updateToCart } from "../../api/user";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCartSuccess } from "../../redux/productSlice";
-import { listOptionShipping } from "../../data";
+import { errorSystem, listOptionShipping } from "../../data";
 import {
   endLoading,
   showSnackbar,
@@ -190,7 +190,6 @@ export default function Cash({ currentUser }) {
         userId: currentUser._id,
         products: newListProduct,
       });
-      console.log(data.data);
       if (data?.data.error) {
         dispatch(
           showSnackbar({ severity: "warning", message: data.data.error })
@@ -203,7 +202,7 @@ export default function Cash({ currentUser }) {
 
       dispatch(addToCartSuccess(data.data.user.cart));
     } catch (error) {
-      console.log(error);
+      dispatch(showSnackbar(errorSystem));
     }
     dispatch(endLoading());
   };

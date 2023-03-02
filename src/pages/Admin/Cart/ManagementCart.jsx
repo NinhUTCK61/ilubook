@@ -16,6 +16,13 @@ import {
   Button,
 } from "@mui/material";
 import { searchUser, updateToCart } from "../../../api/user";
+import { useDispatch } from "react-redux";
+import {
+  endLoading,
+  showSnackbar,
+  startLoading,
+} from "../../../redux/statusSlice";
+import { errorSystem } from "../../../data";
 
 const BodyCart = styled("div")(({ theme }) => ({
   width: "100%",
@@ -26,7 +33,8 @@ const BodyCart = styled("div")(({ theme }) => ({
 }));
 
 export default function ManagementCart() {
-  // const [initCart, setInitCart] = useState([]);
+  const dispatch = useDispatch();
+
   const [listProduct, setListProduct] = useState([]);
   const [listUser, setListUser] = useState([]);
   const [currentUser, setCurrentUser] = useState({});
@@ -47,6 +55,7 @@ export default function ManagementCart() {
   };
 
   const handleSaveYourCart = async () => {
+    dispatch(startLoading());
     const oldListProduct = JSON.parse(localStorage.getItem("initCart")).map(
       i => ({
         quantity: i.quantity,
@@ -69,31 +78,59 @@ export default function ManagementCart() {
     }
 
     try {
-      await updateToCart({
+      const data = await updateToCart({
         userId: currentUser._id,
         products: newListProduct,
       });
+      if (data?.data.error) {
+        dispatch(
+          showSnackbar({ severity: "warning", message: data.data.error })
+        );
+      } else {
+        dispatch(
+          showSnackbar({ severity: "success", message: data.data.message })
+        );
+      }
     } catch (error) {
-      console.log(error);
+      dispatch(showSnackbar(errorSystem));
     }
+    dispatch(endLoading());
   };
 
   const handleSearch = async e => {
     if (e.keyCode === 13) {
+      dispatch(startLoading());
       try {
         const data = await searchUser(searchText);
+        if (data.data.length === 0) {
+          dispatch(
+            showSnackbar({
+              severity: "info",
+              message: "Không có kết quả tìm kiếm",
+            })
+          );
+        }
         setListUser(data.data);
         setSearchText("");
         setIsOpenCart(false);
       } catch (error) {
-        console.log(error);
+        dispatch(showSnackbar(errorSystem));
       }
+      dispatch(endLoading());
     }
   };
 
   const handleEidtCartUser = user => {
     setIsOpenCart(true);
     setCurrentUser(user);
+    if (user.cart?.length === 0) {
+      dispatch(
+        showSnackbar({
+          severity: "info",
+          message: "Hiện tại chưa có gì trong giỏ hàng",
+        })
+      );
+    }
     setListProduct(user.cart);
     localStorage.setItem("initCart", JSON.stringify(user.cart));
   };
@@ -262,15 +299,17 @@ export default function ManagementCart() {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <Box mt={2} display="flex" justifyContent="center" gap="20px">
-                  <Button
-                    variant="contained"
-                    size="small"
-                    onClick={handleSaveYourCart}
-                  >
-                    Save Cart
-                  </Button>
-                </Box>
+                {listProduct?.length > 0 && (
+                  <Box mt={2} display="flex" justifyContent="center" gap="20px">
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={handleSaveYourCart}
+                    >
+                      Save Cart
+                    </Button>
+                  </Box>
+                )}
               </>
             ) : (
               <TableContainer sx={{ width: "100%" }}>

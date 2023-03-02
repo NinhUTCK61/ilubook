@@ -60,6 +60,14 @@ export default function LatestProduct() {
   };
 
   const handleAddToCart = async id => {
+    if (!currentUser) {
+      return dispatch(
+        showSnackbar({
+          severity: "info",
+          message: "Bạn phải đăng nhập để thêm vào giỏ hàng",
+        })
+      );
+    }
     try {
       const data = await addToCart({
         products: [

@@ -8,3 +8,7 @@
   width: 100vw !important;
   overflow-x: hidden !important;
 }
+
+a {
+  text-decoration: none;
+}

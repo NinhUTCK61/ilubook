@@ -11,7 +11,14 @@ import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  startLoading,
+  endLoading,
+  showSnackbar,
+} from "../../redux/statusSlice";
+import { errorSystem } from "../../data";
+import { searchProduct } from "../../api/product";
 
 const SearchWrap = styled("div")`
   height: 44px;
@@ -20,6 +27,7 @@ const SearchWrap = styled("div")`
   background: #ccc;
   display: flex;
   align-items: center;
+  position: relative;
 `;
 
 const InputSearch = styled("input")`
@@ -51,9 +59,82 @@ const MenuItem = styled("div")(({ theme }) => ({
   },
 }));
 
+const ListProduct = styled("div")(({ theme }) => ({
+  zIndex: "1000",
+  display: "flex",
+  flexDirection: "column",
+  backgroundColor: "red",
+  position: "absolute",
+  top: "100%",
+  width: "88%",
+  borderRadius: "5px",
+  padding: "0 19px",
+  marginTop: "5px",
+  background: "#f8f9fa",
+}));
+
+const ItemProduct = styled("div")(({ theme }) => ({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  maxHeight: "250px",
+  padding: "0.25rem 1rem",
+  borderBottom: "1px solid #dee2e6",
+  "&>img": {
+    display: "block",
+    width: "50px",
+    height: "50px",
+    objectFit: "cover",
+  },
+  "&>span": {
+    color: "#343a40",
+  },
+}));
+
 export default function Header() {
+  const dispatch = useDispatch();
+
   const [isOpenMenu, setIsOpenMenu] = React.useState(false);
   const { listProduct } = useSelector(state => state.product);
+
+  const [searchProductText, setSearchProductText] = React.useState("");
+  const [resultProduct, setResultProduct] = React.useState([]);
+  const [typingTimeout, setTypingTimeout] = React.useState(0);
+
+  const handleInputChange = e => {
+    setSearchProductText(e.target.value);
+
+    clearTimeout(typingTimeout);
+
+    setTypingTimeout(
+      setTimeout(() => {
+        handleSearchProduct(e.target.value);
+      }, 2000)
+    );
+  };
+
+  const handleSearchProduct = async textSearch => {
+    if (textSearch !== "") {
+      dispatch(startLoading());
+      try {
+        const data = await searchProduct(textSearch);
+        if (data.data.length === 0) {
+          dispatch(
+            showSnackbar({
+              severity: "info",
+              message: "Không có kết quả tìm kiếm",
+            })
+          );
+        }
+        setResultProduct(data.data);
+      } catch (error) {
+        dispatch(showSnackbar(errorSystem));
+      }
+      dispatch(endLoading());
+    } else {
+      setResultProduct([]);
+    }
+  };
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -89,7 +170,25 @@ export default function Header() {
             </Grid>
             <Grid item xs={6} sx={{ padding: "0 15px" }}>
               <SearchWrap>
-                <InputSearch placeholder="Search on ilubooks ..." />
+                <InputSearch
+                  placeholder="Search on ilubooks ..."
+                  value={searchProductText}
+                  onChange={handleInputChange}
+                />
+                <ListProduct>
+                  {resultProduct?.length > 0 &&
+                    resultProduct?.map(product => (
+                      <Link
+                        to={`/product-detail/${product?._id}`}
+                        key={product?._id}
+                      >
+                        <ItemProduct>
+                          <img src={product?.image} alt={product?._id} />
+                          <span>{product?.title}</span>
+                        </ItemProduct>
+                      </Link>
+                    ))}
+                </ListProduct>
               </SearchWrap>
             </Grid>
             <Grid item xs={4} sx={{ padding: "0 15px" }}>
